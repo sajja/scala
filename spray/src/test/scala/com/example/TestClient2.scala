@@ -15,14 +15,10 @@ import spray.httpx.SprayJsonSupport
 import spray.client.pipelining._
 import spray.util._
 
-case class Elevation(location: Location, elevation: Double)
-case class Location(lat: Double, lng: Double)
-case class GoogleApiResult[T](status: String, results: List[T])
 
-object ElevationJsonProtocol extends DefaultJsonProtocol {
+object MyImplicits extends DefaultJsonProtocol {
   implicit val aC = jsonFormat2(Address)
   implicit val pC = jsonFormat2(Person)
-  implicit def googleApiResultFormat[T :JsonFormat] = jsonFormat2(GoogleApiResult.apply[T])
 }
 
 object Main extends App {
@@ -31,9 +27,9 @@ object Main extends App {
   import system.dispatcher // execution context for futures below
   val log = Logging(system, getClass)
 
-  log.info("Requesting the elevation of Mt. Everest from Googles Elevation API...")
+  log.info("Calling the rest api")
 
-  import ElevationJsonProtocol._
+  import MyImplicits._
   import SprayJsonSupport._
   val pipeline = addCredentials(BasicHttpCredentials("sajiths", "123456")) ~> sendReceive ~> unmarshal[Person]
 

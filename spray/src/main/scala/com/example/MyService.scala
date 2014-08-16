@@ -27,10 +27,31 @@ class MyServiceActor extends Actor with MyService {
   def receive = runRoute(myRoute)
 }
 
-//
 //// this trait defines our service behavior independently from the service actor
 trait MyService extends HttpService {
-  //  val cust = new Person("Mr. Sherlock Holms", addr)
+
+  val x = {
+      put {
+        complete{
+          <html></html>
+        }
+      }
+    }
+
+  val myRoute = path("g")(x)
+//  {
+//    put {
+//      complete{
+//        <html></html>
+//      }
+//    }
+//  }
+}
+
+
+
+/*
+trait MyService extends HttpService {
   val myRoute =
     path("g") {
       put {
@@ -57,20 +78,4 @@ trait MyService extends HttpService {
       }
     }
 }
-//
-//trait MyService extends HttpService {
-//
-//  lazy val myRoute =
-//    path("g") {
-//      get {
-//        getRoute
-//      }
-//    }
-//
-//  protected lazy val getRoute =
-//        complete {
-//          val address = new Address(1,"")
-//          implicit val abc = jsonFormat2(Address)
-//          HttpEntity(ContentTypes.`application/json`, address.toJson.prettyPrint)
-//        }
-//}
+ */

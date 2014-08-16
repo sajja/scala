@@ -22,6 +22,7 @@ object PatternMatching {
       case _ => println("Other")
     }
   }
+
   def main(args: Array[String]) {
     firstTest(1)
     firstTest(12)
