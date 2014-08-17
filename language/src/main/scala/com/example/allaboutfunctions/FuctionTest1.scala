@@ -15,6 +15,7 @@ object FuctionTest1 {
   }
 
   def addHandlerTheLongWay() {
+
     fut1.onComplete[Unit](
       (f: Try[Int]) => {
         f match {
