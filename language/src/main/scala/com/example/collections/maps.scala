@@ -62,8 +62,29 @@ object maps {
 
   }
 
+
+
+  def simpleMapTest() = {
+    val seq = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+    seq.map(_*2).foreach(println)
+
+  }
+
+
+  def simpleReduceTest() = {
+    val seq = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+    seq.reduce((i:Int,j:Int)=> {
+      print(i +" " +j)
+      i+j
+    })
+  }
+
   def main(args: Array[String]) {
     group_by_test()
     map_test()
+    println("--------")
+    simpleMapTest()
+    println("--------")
+    simpleReduceTest()
   }
 }

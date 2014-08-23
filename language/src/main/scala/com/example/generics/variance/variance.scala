@@ -13,7 +13,7 @@ object TestVariance {
     val ordinaryGuy = new Employee
     val managerAward = new Award[Manager](theMan)
     val empAward = new Award[Employee](ordinaryGuy)
-//    val employeAward:Award[Employee] = ( //--does not compile, invariance
+//    val employeAward:Award[Employee] = managerAward //--does not compile, invariance
     val awards = List[Award[Employee]](empAward)
 //    val genericAwards = List[Award[Employee]](managerAward) //--does not compile invariance
     val covarManAward:CovariantAward[Manager] = new CovariantAward[Manager](theMan)
