@@ -14,15 +14,23 @@ object MoreAdvancedExamples extends Domain {
 
   def bootstrap() = {
     try {
-      abilities.ddl.drop
-      players.ddl.drop
+      DatabaseWrapper.db withSession {
+        x => {
+          abilities.ddl.drop(x)
+          players.ddl.drop(x)
+        }
+      }
     } catch {
       case e: Exception => e.printStackTrace()
     }
 
     try {
-      players.ddl.create
-      abilities.ddl.create
+
+      DatabaseWrapper.db.withSession((f: Session) => {
+        players.ddl.create
+        abilities.ddl.create
+      })
+
     } catch {
       case e: Exception => e.printStackTrace()
     }
@@ -46,6 +54,20 @@ object MoreAdvancedExamples extends Domain {
       p <- players if p.id is id
     } yield p
   }
+
+  def transactionTest(i: Int = 0) = {
+
+    DatabaseWrapper.db withTransaction { implicit  session => {
+      val id = insertAndReturnPKey.insert(new Player("Sajith"))
+
+      if (i == 0) {
+        throw new Exception("")
+      }
+      abilities.insert(new Ability("walk on water", id))
+    }
+    }
+  }
+
   def main(args: Array[String]) {
     bootstrap()
     println("\t------- Returns the pk of the inserted item ---------")
@@ -75,38 +97,19 @@ object MoreAdvancedExamples extends Domain {
     explictInnerJoin.foreach(println)
     println("\n")
 
-    println("\t------- Precompiled queries ---------")
-    val preCompiledFindById = for {
-        id <- Parameters[Int]
-        p <- players if p.id is id
-    } yield p
-//
-//    z(1).foreach(println)
-    precompiledFindById()(2).foreach(println)
-    val findby = players.findBy(_.id)
-    findby(2).foreach(println)
+    //    println("\t------- Precompiled queries ---------")
+    //    val preCompiledFindById = for {
+    //      id <- Parameters[Int]
+    //      p <- players if p.id is id
+    //    } yield p
+    //    //
+    //    //    z(1).foreach(println)
+    //    precompiledFindById()(2).foreach(println)
+    //    val findby = players.findBy(_.id)
+    //    findby(2).foreach(println)
+    //
 
-
-
-
-    val s = System.nanoTime()
-    for (i <-1 to 100000) {
-      findby(2).foreach(_=>{})
-    }
-    val e = System.nanoTime()
-    val nor = e-s
-
-    val start = System.nanoTime()
-    for (i <-1 to 100000) {
-      preCompiledFindById(2).foreach(_=>{})
-    }
-
-    val end = System.nanoTime()
-    val pre = end-start
-    println("Total time precompiled " + pre)
-
-    println("Total time normal" + nor)
-    println("Diff " + (pre-nor))
+    transactionTest()
     session.close()
   }
 }
