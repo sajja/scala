@@ -1,35 +1,31 @@
 package com.example.generics
-class Base
-class MyType extends Base
-class SubType extends MyType
 
-class AnotherType[B <: MyType] {
-}
-
-class YetAnotherTest[P] {
-  def takeThis[Q<:P](q:Q) = println(q)
-}
-
+class A
+class B extends A
+class C extends A
+class D extends B
+class E extends D
 object BoundsTest {
-  def upperBound[A<: SubType](a:A) {
-    println(a)
+  def upperBound[T<:B](t:T) = {
+    println(t)
   }
-  def lowerBound[A >: MyType](a:A) {
-    println(a)
+
+  def lowerBound[T>:B](t:T) = {
+    println(t)
   }
 
   def main(args: Array[String]) {
-//    val sT1 = new AnotherType[Int]//fails to compile
-    val sT2 = new AnotherType[SubType]
-//    fn1[Int](100) //fail to compile
-    upperBound[SubType](new SubType)
-//    fn1[MyType](new MyType)//fail to compile
-    lowerBound  [MyType](new MyType)
-//    upperBound[SubType](new SubType)//fail to compile
-    lowerBound[Base](new Base)
+    //upperboud -> T should be subtype of give type
+//    upperBound[A](new A)//fail. A is not sub type of B
+    upperBound[B](new B)//ok same type
+//    upperBound[C](new C)//fail C is not subtype of B
+    upperBound[D](new D)//ok D is subtype of B
 
-    val yNT = new YetAnotherTest[MyType]
-    yNT.takeThis[SubType](new SubType)
-//    yNT.takeThis[Base](new Base)//will not compile
+    //lowerbound -> T should be supertype of given type
+
+    lowerBound[A](new A)//ok. A is a supertype of B
+    lowerBound[B](new B)//ok. same type
+//    lowerBound[C](new C)//fail. C is not subtype of b
+//    lowerBound[D](new D)//fail. D is not supertype of B
   }
 }

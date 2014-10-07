@@ -79,6 +79,15 @@ object maps {
     })
   }
 
+  def anotherMapTest(): Unit = {
+    val votes = Seq(("Scala", 10), ("Java", 4), ("C", 10), ("C++", 15), ("Python", 8), ("Scala", 12), ("Python", 1), ("Java", 1))
+    votes.map((tuple: (String, Int)) => (tuple._1,tuple._1)).foreach(println)
+    val x = votes map {
+      case tupel => "x"
+    }
+    x.foreach(println)
+  }
+
   def main(args: Array[String]) {
     group_by_test()
     map_test()
@@ -86,5 +95,7 @@ object maps {
     simpleMapTest()
     println("--------")
     simpleReduceTest()
+    println("--------")
+    anotherMapTest()
   }
 }

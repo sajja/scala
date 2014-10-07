@@ -1,9 +1,17 @@
 package com.example.loops
 
-/**
- * Created by sajith on 8/16/14.
- */
 object Loops {
+
+  def ifTest() = {
+    val id = 1001
+    val isHundread  = if (id == 100) {
+      "Hundread"
+    } else {
+      "somthign elese"
+    }
+
+    println(isHundread)
+  }
 
   def main(args: Array[String]) {
     val x = List(1,2,3,4,5,6,7,8,9)
@@ -14,5 +22,6 @@ object Loops {
     } yield i
 
     println(yieldTest)
+    ifTest()
   }
 }

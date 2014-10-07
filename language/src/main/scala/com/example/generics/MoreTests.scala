@@ -17,9 +17,6 @@ class W2 extends Wrapped
 
 object MoreTests {
 
-  def genericDoSome(w: Wrapper) = {
-
-  }
 
   def main(args: Array[String]) {
     new Wrapper[W1]().doSome(new W1)
