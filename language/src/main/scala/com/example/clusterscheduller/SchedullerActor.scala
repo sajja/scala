@@ -1,6 +1,5 @@
 package com.example.clusterscheduller
 
-import java.util.function.Consumer
 
 import akka.actor.{Props, ActorSystem}
 
