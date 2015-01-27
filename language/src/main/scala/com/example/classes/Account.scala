@@ -3,6 +3,11 @@ package com.example.classes
 /**
  * Created by sajith on 7/28/14.
  */
+class Animal (val name: String) {
+}
+class Dog (name: String) extends Animal (name) {
+}
+
 case class PersonName(first: String, last: String, middle: Option[String])
 
 object PersonName {

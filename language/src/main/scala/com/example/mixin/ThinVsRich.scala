@@ -9,7 +9,6 @@ trait Flyable {
   def fly() = println("firing thrusters ......")
 }
 
-
 class Vehicle
 class Boat
 class DolphinBoat extends Boat with Submergable
