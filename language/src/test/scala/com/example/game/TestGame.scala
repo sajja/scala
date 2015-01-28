@@ -7,19 +7,21 @@ package com.example.game
 import com.example.game.models._
 import org.scalatest.{Matchers, FlatSpec}
 
-class TestGame extends FlatSpec with  Matchers {
+class TestGame extends FlatSpec with Matchers {
   val human = new Human("Human")
-  val elf = new Human("Elf")
-  val orc = new Human("Orc")
+  val elf = new Elf("Elf")
+  val orc = new Orc("Orc")
 
   val arthur = new Warrior("King arthur", human)
+  val hellscreem = new Warrior("Hellscreem", orc)
   val archer = new Ranger("Some archer", human)
-  val woodenBow = new Bow("Elvan bow")
-  val excaliber = new Sword("Excaliber")
+  val woodenBow = new Bow("Elvan bow", 10)
+  val excaliber = new Sword("Excaliber", 20)
+  val battleAxe = new BattleAxe("SoulCarver", 30)
 
   "Character" should "not be able to fight without a weapon" in {
-    arthur.fireWeapon() shouldBe false
-    archer.fireWeapon() shouldBe false
+    arthur.fireWeapon() shouldBe -1
+    archer.fireWeapon() shouldBe -1
   }
 
   "Archer" should "be able to equip a bow" in {
@@ -38,11 +40,9 @@ class TestGame extends FlatSpec with  Matchers {
     arthur.canEquip(woodenBow) shouldBe false
   }
 
-  "Character" should "be able to fight with a weapon" in {
+  "Hellscreem" should "be able do more damage than arthur" in {
     arthur.equipPrimary(excaliber) shouldBe true
-    archer.equipPrimary(woodenBow) shouldBe true
-
-    arthur.fireWeapon() shouldBe true
-    archer.fireWeapon() shouldBe true
+    hellscreem.equipPrimary(excaliber) shouldBe true
+    hellscreem.fireWeapon() should be > arthur.fireWeapon()
   }
 }

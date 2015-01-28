@@ -4,15 +4,18 @@ abstract class Character(name: String, race: Race) {
   var primaryWeapon: Option[Weapon] = None
   //  var secondaryWeapon: Weapon = null
 
-  def fireWeapon(): Boolean = {
+  def fireWeapon(): Int = {
     primaryWeapon match {
       case Some(i) => {
-        i.fire()
-        true
+        println(name + " uses " + i.name)
+        val damage = i.use()
+        println("Attack bonus " + race.attack())
+        println("total attach damage " + (damage + race.attack()))
+        damage + race.attack()
       }
       case _ => {
         println("How can i fight without weapon")
-        false
+        -1
       }
     }
   }
@@ -46,8 +49,3 @@ class Warrior(name: String, race: Race) extends Character(name, race) {
     }
   }
 }
-
-class Rouge(name: String, race: Race) extends Character(name, race) {
-  override def canEquip(weapon: Weapon): Boolean = true
-}
-
