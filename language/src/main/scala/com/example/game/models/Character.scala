@@ -1,17 +1,19 @@
 package com.example.game.models
 
-abstract class Character(name: String, race: Race) {
+abstract class Character(val name: String, var hitPoints: Int, val race: Race) {
   var primaryWeapon: Option[Weapon] = None
-  //  var secondaryWeapon: Weapon = null
 
-  def fireWeapon(): Int = {
+  def useWeapon(target: Character): Int = {
     primaryWeapon match {
       case Some(i) => {
-        println(name + " uses " + i.name)
+        println(name + " attacks " + target.name)
         val damage = i.use()
-        println("Attack bonus " + race.attack())
-        println("total attach damage " + (damage + race.attack()))
-        damage + race.attack()
+        val totalDamage = damage + race.attack()
+        println("\n\tBase damage: " + totalDamage)
+        println("\tAttack bonus: " + race.attack())
+        println("\tTotal damage: " + totalDamage)
+        target.takeDamage(damage)
+        totalDamage
       }
       case _ => {
         println("How can i fight without weapon")
@@ -19,6 +21,8 @@ abstract class Character(name: String, race: Race) {
       }
     }
   }
+
+  def takeDamage(damage: Int) = hitPoints -= damage
 
   def canEquip(weapon: Weapon): Boolean
 
@@ -32,19 +36,19 @@ abstract class Character(name: String, race: Race) {
   }
 }
 
-class Ranger(name: String, race: Race) extends Character(name, race) {
+class Ranger(name: String, hitPoints: Int, race: Race) extends Character(name, hitPoints, race) {
   override def canEquip(weapon: Weapon): Boolean = {
     weapon match {
-      case i: Bow => true
+      case i: Bow => i.canWield(this)
       case _ => false
     }
   }
 }
 
-class Warrior(name: String, race: Race) extends Character(name, race) {
+class Warrior(name: String, hitPoints: Int, race: Race) extends Character(name, hitPoints, race) {
   override def canEquip(weapon: Weapon): Boolean = {
     weapon match {
-      case i: Sword => true
+      case w: MeeleWeapon => w.canWield(this)
       case _ => false
     }
   }
