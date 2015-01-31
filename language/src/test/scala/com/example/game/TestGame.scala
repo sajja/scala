@@ -1,9 +1,12 @@
 package com.example.game
 
+import akka.actor.ActorSystem
 import com.example.game.models._
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{BeforeAndAfterAll, Matchers, FlatSpec}
 
-class TestGame extends FlatSpec with Matchers {
+class TestGame extends FlatSpec with Matchers with BeforeAndAfterAll {
+  implicit val system = ActorSystem("Game")
+
   val human = new Human("Human")
   val elf = new Elf("Elf")
   val orc = new Orc("Orc")
@@ -70,5 +73,10 @@ class TestGame extends FlatSpec with Matchers {
     arthur.equipPrimary(longSword)
     arthur.useWeapon(grunt)
     grunt.hitPoints shouldBe 20
+  }
+
+  override def beforeAll(): Unit = {
+
+
   }
 }

@@ -1,7 +1,14 @@
 package com.example.game.models
 
-abstract class Character(val name: String, var hitPoints: Int, val race: Race) {
+import akka.actor.Actor.Receive
+import akka.actor.{Props, ActorSystem, Actor}
+
+abstract class Character(val name: String, var hitPoints: Int, val race: Race)(implicit system:ActorSystem) extends Actor {
   var primaryWeapon: Option[Weapon] = None
+
+  val actor = system.actorOf(Props(this),name)
+
+  override def receive: Receive = ???
 
   def useWeapon(target: Character): Int = {
     primaryWeapon match {
@@ -12,7 +19,7 @@ abstract class Character(val name: String, var hitPoints: Int, val race: Race) {
         println("\n\tBase damage: " + totalDamage)
         println("\tAttack bonus: " + race.attack())
         println("\tTotal damage: " + totalDamage)
-        target.takeDamage(damage)
+//        target.takeDamage(damage)
         totalDamage
       }
       case _ => {
@@ -36,7 +43,7 @@ abstract class Character(val name: String, var hitPoints: Int, val race: Race) {
   }
 }
 
-class Ranger(name: String, hitPoints: Int, race: Race) extends Character(name, hitPoints, race) {
+class Ranger(name: String, hitPoints: Int, race: Race) (implicit system:ActorSystem) extends Character(name, hitPoints, race) {
   override def canEquip(weapon: Weapon): Boolean = {
     weapon match {
       case i: Bow => i.canWield(this)
@@ -45,7 +52,7 @@ class Ranger(name: String, hitPoints: Int, race: Race) extends Character(name, h
   }
 }
 
-class Warrior(name: String, hitPoints: Int, race: Race) extends Character(name, hitPoints, race) {
+class Warrior(name: String, hitPoints: Int, race: Race) (implicit system:ActorSystem) extends Character(name, hitPoints, race) {
   override def canEquip(weapon: Weapon): Boolean = {
     weapon match {
       case w: MeeleWeapon => w.canWield(this)
