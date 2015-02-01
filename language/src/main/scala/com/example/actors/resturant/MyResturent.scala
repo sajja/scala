@@ -1,112 +1,107 @@
 package com.example.actors.resturant
 
-import java.util.Random
+import java.util.concurrent.TimeUnit
 
+import akka.actor.Actor.Receive
 import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
 
-case class LookingForWaiter(client: ActorRef)
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+
+case class ClientReadyToOrder(client: ActorRef)
 
 case class DispatchWaiter(client: ActorRef)
 
-case class WaiterReady(bill: Bill)
+case class WaiterBusy()
 
-case class Order(item: String, bill: Bill)
+case class WaiterIdle()
 
-case class ReOrder(client: ActorRef, item: String)
+case class Order(item: String)
 
-case class ItemServed(item: String, bill: Bill)
+case class OrderServed(item: String)
 
-case class ItemNotAvailable
-
-case class ItemConsumed(item: String, bill: Bill)
-
-case class Bill(itemsConsumed: Seq[String])
-
-class Client(val delay: Int, val resturant: ActorRef, foodType: String) extends Actor {
-  val items = Array("BEER", "PIZZA", "BILL")
-
-  override def receive: Actor.Receive = {
-    case WaiterReady(bill) => {
-      println("Client: Let me think for a sec...")
-      Thread.sleep(delay)
-      val food = items(new Random().nextInt(3))
-      println("Client: Ok... I want " + food)
-      sender ! Order(food, new Bill(bill.itemsConsumed :+ food))
-    }
-    case ItemServed(item,bill) => {
-      println("Client: Thank you very much..")
-      Thread.sleep(delay * 3)
-      println("Client: I'm done eating...")
-      sender ! ItemConsumed(item,bill)
-    }
-    case ItemNotAvailable => println("Client: Oh bummer ....")
-  }
+case class WaiterReadyToTakeOrder() {
+  val menu = Array("PIZZA", "BEER", "BILL")
 }
 
-class Waiter extends Actor {
-  override def receive: Receive = {
+class Waiter(i: Int, system: ActorSystem) extends Actor {
+  override def receive: Actor.Receive = {
     case DispatchWaiter(client) => {
-      println("Waiter: Going to the client ....")
-      Thread.sleep(2000)
-      println("Waiter: Hello sir what would you want to order ....")
-      client ! WaiterReady(Bill(Seq[String]()))
+      println("Waiter: Hello I'm waiter " + i + " What you wanna order")
+//      system.actorSelection("user/MyResturant") ! WaiterBusy
+      client ! WaiterReadyToTakeOrder
     }
-    case ItemConsumed(item, bill) => {
-      println("Waiter: Going to to client to pick up leftovers")
-      Thread.sleep(2000)
-      println("Waiter: Do you want to order anything ...")
-      sender ! WaiterReady(bill)
-    }
-    case Order("BEER", bill) => {
-      println("Waiter: Ok sir BEER coming up....")
-      Thread.sleep(2000)
-      println("Waiter: Here you go sir... enjoy")
-      sender ! ItemServed("BEER", bill)
-    }
-    case Order("PIZZA", bill) => {
-      println("Waiter: Ok sir I will make a PIZZA for you. It would take few min..")
-      println("Waiter: Here you go sir... enjoy")
-      sender ! ItemServed("PIZZA",bill)
-    }
-    case Order("BILL", bill) => {
-      println("Waiter: Sure I'll give you the bill right away")
-      Thread.sleep(2000)
-      println("Waiter: Here is the bill sir...")
-      bill.itemsConsumed.foreach(println)
-    }
-    case Order(i,_) => {
-      println("Waiter: I'm sorry sir we don't have " + i)
-      sender ! ItemServed
+    case Order(item: String) => {
+      println("Waiter: One " + item + "coming up")
+      Thread.sleep(3000)
+      println("Waiter: Here you go sir.. One " + item)
+      sender ! OrderServed(item)
+      system.actorSelection("user/MyResturant") ! WaiterIdle
     }
   }
 }
 
-class Resturant(implicit system: ActorSystem) extends Actor {
-  val waiter = system.actorOf(Props[Waiter])
-
+class Client extends Actor {
   override def receive: Actor.Receive = {
-    case LookingForWaiter(client) => waiter ! DispatchWaiter(client)
+    case WaiterReadyToTakeOrder => {
+      println("Client: Mmmmmm.. Let me think")
+      Thread.sleep(4000)
+      println("Client: Ok I got it. I want Beer")
+      sender ! Order("BEER")
+    }
+    case OrderServed(item: String) => {
+      println("Client: Thank you.. I'll call you once I'm Done with the " + item)
+      Thread.sleep(5000)
+
+    }
   }
 }
 
-class Kitchen extends Actor {
-  override def receive: Actor.Receive = {
-    case Order(i,_) =>
+class Restaurant(system: ActorSystem) extends Actor {
+  var open = false
+  val waiter = system.actorOf(Props(classOf[Waiter], 1, system))
+  var availableWaiterCount = 1
+
+  override def receive: Receive = {
+    case ClientReadyToOrder(client) => {
+      if (availableWaiterCount > 0) {
+        waiter ! DispatchWaiter(client)
+        sender ! "Waiter will be comming right up"
+        availableWaiterCount -= 1
+      } else {
+        sender ! "I'm very sorry. All waiters are busy now"
+      }
+    }
+
+//    case WaiterBusy => availableWaiterCount -= 1
+    case WaiterIdle => availableWaiterCount += 1
   }
 }
 
 object MyResturent {
   def main(args: Array[String]) {
     val system = ActorSystem("Resturant")
-    val resturent = system.actorOf(Props(classOf[Resturant], system), "Resturent")
-    val beerClient = system.actorOf(Props(classOf[Client], 3000, resturent, "BEER"), "client1")
-    val pizzaClient = system.actorOf(Props(classOf[Client], 3000, resturent, "Pizza"), "client2")
+    val restaurant = system.actorOf(Props(classOf[Restaurant], system), "MyResturant")
+    val client1 = system.actorOf(Props[Client], "Client1")
+    val client2 = system.actorOf(Props[Client], "Client2")
+    implicit val timeout = Timeout(2,TimeUnit.SECONDS)
+    implicit val ec = system.dispatcher
 
-    resturent ! LookingForWaiter(beerClient)
+    (restaurant ? ClientReadyToOrder(client1)).onSuccess{
+      case x:String=>println(x)
+    }
 
-    resturent ! LookingForWaiter(pizzaClient)
+    (restaurant ? ClientReadyToOrder(client2)).onSuccess{
+      case x:String=>println(x)
+    }
 
-    val x = new Random()
-    system.awaitTermination()
+    Thread.sleep(10000)
+    println("Angry client re-orders....")
+    (restaurant ? ClientReadyToOrder(client2)).onSuccess{
+      case x:String=>println(x)
+    }
+    system.awaitTermination(Duration(80L, "s"))
   }
 }
