@@ -33,29 +33,25 @@ class Waiter(i: Int, system: ActorSystem) extends Actor {
 //      system.actorSelection("user/MyResturant") ! WaiterBusy
       client ! WaiterReadyToTakeOrder
     }
-    case Order(item: String) => {
+    case Order(item: String) =>
       println("Waiter: One " + item + "coming up")
       Thread.sleep(3000)
       println("Waiter: Here you go sir.. One " + item)
       sender ! OrderServed(item)
       system.actorSelection("user/MyResturant") ! WaiterIdle
-    }
   }
 }
 
 class Client extends Actor {
   override def receive: Actor.Receive = {
-    case WaiterReadyToTakeOrder => {
+    case WaiterReadyToTakeOrder =>
       println("Client: Mmmmmm.. Let me think")
       Thread.sleep(4000)
       println("Client: Ok I got it. I want Beer")
       sender ! Order("BEER")
-    }
-    case OrderServed(item: String) => {
+    case OrderServed(item: String) =>
       println("Client: Thank you.. I'll call you once I'm Done with the " + item)
       Thread.sleep(5000)
-
-    }
   }
 }
 
@@ -75,7 +71,6 @@ class Restaurant(system: ActorSystem) extends Actor {
       }
     }
 
-//    case WaiterBusy => availableWaiterCount -= 1
     case WaiterIdle => availableWaiterCount += 1
   }
 }
