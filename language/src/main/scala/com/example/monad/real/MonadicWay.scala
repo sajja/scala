@@ -36,9 +36,6 @@ class ResponseHandler {
 
 
 object MonadicWay {
-
   def main(args: Array[String]) {
-
   }
-
 }

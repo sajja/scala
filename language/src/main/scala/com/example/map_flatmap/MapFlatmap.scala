@@ -13,5 +13,7 @@ object MapFlatmap {
     println(x)
     println(x.map(print))
     println(x.flatMap(print))
+//    val xx = x.flatMap(_)
+//    println(xx  )
   }
 }
