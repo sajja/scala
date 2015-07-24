@@ -29,29 +29,6 @@ class MyServiceActor extends Actor with MyService {
 
 //// this trait defines our service behavior independently from the service actor
 trait MyService extends HttpService {
-
-  val x = {
-      put {
-        complete{
-          <html></html>
-        }
-      }
-    }
-
-  val myRoute = path("g")(x)
-//  {
-//    put {
-//      complete{
-//        <html></html>
-//      }
-//    }
-//  }
-}
-
-
-
-/*
-trait MyService extends HttpService {
   val myRoute =
     path("g") {
       put {
@@ -78,4 +55,3 @@ trait MyService extends HttpService {
       }
     }
 }
- */

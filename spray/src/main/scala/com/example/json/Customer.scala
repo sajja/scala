@@ -8,8 +8,14 @@ case class Color(name: String, red: Int, green: Int, blue: Int)
 case class Address(poBox:Int, street:String)
 case class Person(name:String,address:Address)
 
+case class T2(x:String)
+case class T1(x:String, y:T2)
+
 object MyJsonProtocol extends DefaultJsonProtocol {
   implicit val format = jsonFormat2(Address)
+  implicit val f1ormat = jsonFormat2(Person)
+  implicit val t2 = jsonFormat1(T2)
+  implicit val t1 = jsonFormat2(T1)
 }
 
 object JsonTest {

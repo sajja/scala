@@ -14,11 +14,21 @@ import spray.can.Http
 import spray.httpx.SprayJsonSupport
 import spray.client.pipelining._
 import spray.util._
+import spray.json.DefaultJsonProtocol
 
+import spray.json.DefaultJsonProtocol
+import DefaultJsonProtocol._ // !!! IMPORTANT, else `convertTo` and `toJson` won't work correctly
+import spray.json._
+
+case class M(action:String, node:Node)
+case class Node(key:String, value:String, modifiedIndex:Int, createdIndex:Int)
 
 object MyImplicits extends DefaultJsonProtocol {
   implicit val aC = jsonFormat2(Address)
   implicit val pC = jsonFormat2(Person)
+    implicit val xx = jsonFormat4(Node)
+    implicit val x1 = jsonFormat2(M)
+//  implicit val xx1 = jsonFormat2(Node1)
 }
 
 object Main extends App {
@@ -31,9 +41,10 @@ object Main extends App {
 
   import MyImplicits._
   import SprayJsonSupport._
-  val pipeline = addCredentials(BasicHttpCredentials("sajiths", "123456")) ~> sendReceive ~> unmarshal[Person]
+//  val pipeline = addCredentials(BasicHttpCredentials("sajiths", "123456")) ~> sendReceive ~> unmarshal[Person]
+  val pipeline = addCredentials(BasicHttpCredentials("sajiths", "123456")) ~> sendReceive ~> unmarshal[M]
 
-  val responseFuture = pipeline.apply(Get("http://localhost:8080/g"))
+  val responseFuture = pipeline.apply(Get("http://127.0.0.1:2379/v2/keys/mykey"))
 
   val dd = "ddd"
   responseFuture onComplete {
