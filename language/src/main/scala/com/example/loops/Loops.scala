@@ -23,5 +23,7 @@ object Loops {
 
     println(yieldTest)
     ifTest()
+    val x1 = for (i<-x) i
+    println(x1)
   }
 }

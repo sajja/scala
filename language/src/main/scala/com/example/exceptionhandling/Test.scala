@@ -1,21 +1,32 @@
 package com.example.exceptionhandling
 
-import com.example.monad.validation.Failure
 
-import scala.util.Try
+import scala.util.{Success, Failure, Try}
 
 
 object Test {
 
-  def exceptionTest1(i:Int) = {
-    if(i == 0) throw new Exception("i == 0")
+  def s1(i: Int) = {
+    if (i == 10) Failure(new Exception("S1 failure"))
+    else Success("" + i)
+  }
+
+  def s2(i: Int) = {
+    if (i == 0) Failure(new Exception("S2 failure"))
+    else Success("" + i)
+  }
+
+  def exceptionTest1(i: Int) = {
+    if (i == 0) throw new Exception("i == 0")
     i
   }
 
-  def exceptionTest2(i:Int):Try[Int] = {
-    if(i == 0) throw new Exception("i == 0")
+  def exceptionTest2(i: Int): Try[Int] = {
+    if (i == 0) throw new Exception("i == 0")
     Try(i)
   }
+
+  def fun(i: Int) = i
 
   def foo[A, B](a: A): Try[B] = throw new Exception("oops")
 
@@ -23,10 +34,15 @@ object Test {
     println(exceptionTest1(1))
     println(exceptionTest2(1))
     println(Try(exceptionTest2(0)))
-//    foo(1)
+    //    foo(1)
 
     println(Try("Dd").flatMap(foo))
+
+    val v = for {
+      x <- s2(10)
+      y<-x.charAt(0)
+    } yield y
+
+    println(v)
   }
-
-
 }

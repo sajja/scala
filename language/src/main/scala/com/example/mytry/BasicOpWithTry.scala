@@ -35,20 +35,9 @@ object BasicOpWithTry {
   def anotherUnitOfWork(f:Try[Any] => Unit) {
   }
   def main(args: Array[String]) {
-    tryDivide1(10, 2)
-    tryDivide1(44, 0)
-
-    tryDivide2(divide(122,2))
-    tryDivide2(divide(1,0))
-
-    tryDivide2  {
-      val j = 1
-      val i = 3
-      println("XXXXX")
-      divide(1111,12)
-    }
-
-    unitOfWork(tryDivide2)
-    unitOfWork((x:Try[Double])=> println("1000"))
+    val x = for {
+      i<-divide(1,0)
+    } yield i+1
+    println("------- " + x.get)
   }
 }
