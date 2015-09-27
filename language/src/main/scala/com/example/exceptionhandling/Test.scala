@@ -26,6 +26,13 @@ object Test {
     Try(i)
   }
 
+  def exceptionTest3(i: Int): Try[Int] = {
+    if (i == 0) throw new ArithmeticException("i == 0")
+    if (i == 1) throw new ArrayIndexOutOfBoundsException("i == 0")
+    Try(i)
+  }
+
+
   def fun(i: Int) = i
 
   def foo[A, B](a: A): Try[B] = throw new Exception("oops")
@@ -34,15 +41,13 @@ object Test {
     println(exceptionTest1(1))
     println(exceptionTest2(1))
     println(Try(exceptionTest2(0)))
-    //    foo(1)
-
-    println(Try("Dd").flatMap(foo))
-
-    val v = for {
-      x <- s2(10)
-      y<-x.charAt(0)
-    } yield y
-
-    println(v)
+    val xxx = Try(exceptionTest3(1)) recover {
+      case a:ArithmeticException => Iterator("A")
+      case a:ArrayIndexOutOfBoundsException => Iterator("B")
+    }
+    println(xxx)
+    xxx.foreach((value: Object) => {
+      println(value)
+    })
   }
 }
