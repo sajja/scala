@@ -1,9 +1,30 @@
 package com.example.cake
 
-/**
- * Created by sajith on 3/1/15.
- */
-class
-Test {
 
+trait FooAble {
+  def foo(): String
+}
+
+trait BazAble {
+  def baz() = "baz too"
+}
+
+
+trait MyFooAble extends FooAble {
+  def foo() = "foo impl"
+}
+
+
+class BarUsingFooAble {
+  this: FooAble with BazAble =>
+  //see note #1
+  def bar() = "bar calls foo: " + foo()+ "with baz " + baz()   //see note #2
+}
+
+
+object Main {
+  def main(args: Array[String]) {
+    val barWithFoo = new BarUsingFooAble with MyFooAble with  BazAble//see note #3
+    println(barWithFoo.bar())
+  }
 }

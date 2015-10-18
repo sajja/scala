@@ -1,73 +1,44 @@
 package com.example.cake.example1
 
-sealed case class User(username: String)
+case class User(username: String, password: String)
 
-trait UserRepoService {
-  def userRep(): UserRepo
+trait UserRepositoryComponent {
+  val userRepository: UserRepository
 
-  trait UserRepo {
-    def findById(i: Int): User
-  }
-
-}
-
-trait UserRepoServiceEchoImpl extends UserRepoService {
-  override def userRep(): UserRepo = new UserRepoImpl
-  class UserRepoImpl extends UserRepo {
-    override def findById(i: Int): User = {
-      println("Echo user repo.....")
-      new User(i.toString)
+  class UserRepository {
+    def authenticate(u: String, p: String): User = {
+      val user = new User(u, p)
+      println("authenticating user: " + user)
+      user
     }
-  }
-}
 
-trait UserRepoServiceInMemoryImpl extends UserRepoService {
-  val rep = Map(1->new User("111"),2->new User("222"))
-  override def userRep(): UserRepo = new UserRepoImpl
-  class UserRepoImpl extends UserRepo {
-    override def findById(i: Int): User = {
-      println("Inmemory user repo....")
-      rep get i match {
-        case i:Some[User] => i.get
-        case None=>null
-      }
-    }
-  }
-}
+    def create(user: User) = println("creating user: " + user)
 
-trait UserAuthorizationComponent {
-  def userAuthorization: UserAuthorization
-
-  trait UserAuthorization {
-    def authorize(user: User)
+    def delete(user: User) = println("deleting user: " + user)
   }
 
 }
 
-// Component implementation
-trait UserAuthorizationComponentImpl
-  extends UserAuthorizationComponent {
-  // Dependencies
-  this: UserRepoService =>
+trait UserServiceComponent {
+  this: UserRepositoryComponent =>
+  val userService = new UserService
 
-  def userAuthorization = new UserAuthorizationImpl
+  class UserService {
+    def authenticate(username: String, password: String): User =
+      userRepository.authenticate(username, password)
 
-  class UserAuthorizationImpl extends UserAuthorization {
-    def authorize(user: User) {
-      println("Authorizing " + user.username)
-      // Obtaining the dependency and calling a method on it
-      userRep.findById(user.username.toInt)
-    }
+    def create(username: String, password: String) =
+      userRepository.create(new User(username, password))
+
+    def delete(user: User) = userRepository.delete(user)
   }
 
 }
 
-object Test {
-  def main(args: Array[String]): Unit = {
-    val x = Map(1->"1")
-    val auth1 = new UserAuthorizationComponentImpl() with UserRepoServiceEchoImpl
-    val auth2 = new UserAuthorizationComponentImpl() with UserRepoServiceInMemoryImpl
-    auth1.userAuthorization.authorize(new User("1"))
-    auth2.userAuthorization.authorize(new User("1"))
-  }
+
+object ComponentRegistry extends
+UserServiceComponent with
+UserRepositoryComponent {
+  override val userRepository: ComponentRegistry.UserRepository = new UserRepository
 }
+
