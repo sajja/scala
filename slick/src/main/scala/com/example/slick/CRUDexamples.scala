@@ -5,13 +5,15 @@ import com.example.slick.util.domain.{Aircraft, Aircrafts}
 
 import scala.slick.driver.PostgresDriver.simple._
 
+
+
 object CRUDexamples {
   implicit val aircrafts = TableQuery[Aircrafts]
   implicit val session = DatabaseWrapper.session
 
   def findById(id: Int) = {
-    val findId = aircrafts.findBy(_.id)
-    findId(id).list().headOption
+    //    val findId = aircrafts.findBy(_.id)
+    //    findId(id).list().headOption
   }
 
   def createSchema(schema: List[TableQuery[Aircrafts]]) = {
@@ -46,12 +48,12 @@ object CRUDexamples {
     bootstrap()
     implicit val j = 10000
     println("\t=========Find by id positive match demo=========")
-    println(findById(1).get)
-    println(findById(2).get)
+    //    println(findById(1).get)
+    //    println(findById(2).get)
     println("\t=========Find by id negative match demo=========")
-    println(findById(222).getOrElse(None))
+    //    println(findById(222).getOrElse(None))
     println("\n\n\t=========Select All=========")
-    aircrafts.list().foreach(println)
+    //    aircrafts.list().foreach(println)
     println("\n\n")
     println("\t=========Filter by propultion Unknown=========")
     selectByPropultion("Unknown").foreach(println)
@@ -62,25 +64,25 @@ object CRUDexamples {
 
     ///not that good way of doing... butt....
     println("\t=========Group by aircracts by propultion=========")
-    aircrafts.list().map(s => (s.name, s.propulsion)).groupBy((f: ((String, String))) => f._2).map((tuple: (String, List[(String, String)])) => {
-      (tuple._1, tuple._2.map((tp: (String, String)) => {
-        tp._1
-      }))
-    }).foreach(println)
-    println("\n\n")
+    //    aircrafts.list().map(s => (s.name, s.propulsion)).groupBy((f: ((String, String))) => f._2).map((tuple: (String, List[(String, String)])) => {
+    //      (tuple._1, tuple._2.map((tp: (String, String)) => {
+    //        tp._1
+    //      }))
+    //    }).foreach(println)
+    //    println("\n\n")
 
     ///not that good way of doing... butt....
     //same thing in pattern matching.
     println("\t=========Group by aircracts by propultion=========")
-    aircrafts.list().map(s => (s.name, s.propulsion)).groupBy(_._2).map {
-      case (name, props) => (name, props.map(_._1))
-    }.foreach(println)
-
+    //    aircrafts.list().map(s => (s.name, s.propulsion)).groupBy(_._2).map {
+    //      case (name, props) => (name, props.map(_._1))
+    //    }.foreach(println)
+    //
     println("\n\n")
 
     //much bettter.
     println("\t=========Group by and count=========")
-    val q = aircrafts.groupBy(_.propulsion).map { case (k, v) => (k, v.length)}
+    val q = aircrafts.groupBy(_.propulsion).map { case (k, v) => (k, v.length) }
     println(q.selectStatement)
     q.foreach(println)
     println("\n\n")
@@ -88,28 +90,36 @@ object CRUDexamples {
     println("\t=========Insert then read back =========")
     //Inserts
     aircrafts += Aircraft(10, "Battlestar gallactica", "FTL")
-    println(findById(10).get)
+    //    println(findById(10).get)
 
     aircrafts.insert(Aircraft(11, "Cylon Basestar", "Unknown"))
-    println(findById(11).get)
+    //    println(findById(11).get)
     println("\n\n")
 
     println("\t=========Update then read back =========")
     //update
     aircrafts.filter(_.name === "Cylon Basestar").map(_.propulsion).update("FTL")
-    println(findById(11).get)
+    //    println(findById(11).get)
     println("\n\n")
 
     //delete
     println("\t=========Insert Read Delete Read =========")
     aircrafts += Aircraft(12, "Mistake", "FTL")
-    println(findById(12).get)
+    //    println(findById(12).get)
     aircrafts.filter(_.id === 12).delete
     println(findById(12))
     println("\n\n")
 
+    //    val l = aircrafts.list().slice(3, 6)
 
 
+    //    l.foreach(println)
     session.close()
+
+    val db = Database.forConfig("pg")
+
+
+
+
   }
 }

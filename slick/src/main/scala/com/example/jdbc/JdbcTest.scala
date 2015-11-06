@@ -8,6 +8,8 @@ import org.postgresql.ds.PGSimpleDataSource
 object JdbcTest {
   def main(args: Array[String]) {
     val ds = new PGSimpleDataSource()
+    ds.setServerName("localhost")
+    ds.setPortNumber(15534)
     ds.setDatabaseName("scala_test")
     ds.setUser("postgres")
     ds.setPassword("postgres")

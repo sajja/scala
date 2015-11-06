@@ -18,6 +18,7 @@ trait WeaponModule {
   abstract class Weapon(val name: String) {
     def fire() = println(s"firering weapon $name")
   }
+
 }
 
 trait NonLethalWeapons extends WeaponModule {
@@ -26,6 +27,7 @@ trait NonLethalWeapons extends WeaponModule {
   class PepperSpray extends Weapon("Pepper spray")
 
   class Teaser extends Weapon("Teaser")
+
 }
 
 trait WoldDominationWeapons extends WeaponModule {
@@ -36,6 +38,7 @@ trait WoldDominationWeapons extends WeaponModule {
   class EmpCannon extends Weapon("Emp cannon")
 
   class PlasmaRiffel extends Weapon("Plasma riffel")
+
 }
 
 trait SpeechModule {

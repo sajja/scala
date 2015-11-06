@@ -5,7 +5,7 @@ description := "Scala db examples"
 val akkaVersion = "2.3.2"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.slick" %% "slick" % "2.0.2",
+  "com.typesafe.slick" %% "slick" % "3.0.0",
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
   "com.googlecode.flyway" % "flyway-core" % "2.1.1",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,

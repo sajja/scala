@@ -85,7 +85,7 @@ object MoreAdvancedExamples extends Domain {
       }
     }
     println(flatMapJoin.selectStatement)
-    flatMapJoin.list().foreach(println)
+//    flatMapJoin.list().foreach(println)
     println("\n")
 
     println("\t------- Inner Join example 2 (slick innerjoin) ---------")

@@ -21,7 +21,7 @@ object DefaultDataCrunch {
       cal.add(Calendar.DATE, 1)
       curr = cal.getTime
       val file = new File(dir + "/" + fileName)
-      if (file.exists()) crunch(file)
+//      if (file.exists()) crunch(file)
     }
   }
 
