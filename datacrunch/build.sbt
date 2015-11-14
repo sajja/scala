@@ -25,6 +25,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
   "com.websudos" %% "phantom-dsl" % PhantomVersion,
   "com.websudos" %% "phantom-testkit" % PhantomVersion % "test, provided",
-//  "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test",
+  "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test"
 )

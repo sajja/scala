@@ -42,13 +42,13 @@ object TestDB {
     )
   }
 
-  def bootstrapBigData(size: Int) = {
-    val data = for (i <- 1 to size) yield (i, UUID.randomUUID())
+  def bootstrapBigData(start: Int)(size: Int) = {
+    val data = for (i <- start to start+size) yield (i, UUID.randomUUID())
     bigdata ++= data
   }
 
   def setup() = {
-    val bigdataBootstrap = db.run(createBigDataSchema()).flatMap { _ => db.run(bootstrapBigData(1000)) }
+    val bigdataBootstrap = db.run(createBigDataSchema()).flatMap { _ => db.run(bootstrapBigData(0)(500)) }
     val raceBootstap = db.run(createRaceSchema()).flatMap { _ => db.run(bootstrapRace()) }
     Await.result(raceBootstap, 1 seconds)
     Await.result(bigdataBootstrap, 5 seconds)
@@ -82,13 +82,15 @@ object TestDB {
     val x = db.stream(stream().transactionally.withStatementParameters(fetchSize = 100)).foreach {
       (tuple: (Int, UUID)) =>
         println(tuple._1 + " " + tuple._2)
-        Thread.sleep(50)//emulating slow sink.
+        Thread.sleep(20) //emulating slow sink.
     }
+
+    Await.result(db.run(bootstrapBigData(1003)(200)), 100 seconds)
+    println("xxxxxxxxx")
+
 
     Await.result(x, 100000 seconds)
   }
-
-
 }
 
 
