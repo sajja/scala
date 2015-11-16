@@ -16,9 +16,16 @@ resolvers ++= Seq(
   "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
   "Sonatype staging" at "http://oss.sonatype.org/content/repositories/staging",
   "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
-  "Twitter Repository" at "http://maven.twttr.com",
   Resolver.bintrayRepo("websudos", "oss-releases")
 )
+
+import com.github.hochgi.sbt.cassandra._
+
+CassandraPlugin.cassandraSettings
+
+test in Test <<= (test in Test).dependsOn(startCassandra)
+
+cassandraVersion := "2.1.2"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,

@@ -17,9 +17,8 @@ trait CassandraEventStorageModule extends EventStorageModule with CassandraConne
 
   override type DomainObject = Event
 
-  override def store(listOf: Iterable[Event]): Int = {
-    listOf.foreach(store)
-    listOf.size
+  override def store(listOf: Iterable[Event]): Try[Unit] = {
+    Try(listOf.foreach(store))
   }
 
   def bootstrap(events: List[Event]): Try[Unit] = {
@@ -31,12 +30,12 @@ trait CassandraEventStorageModule extends EventStorageModule with CassandraConne
   }
 
   override def store(e: Event): Unit = {
-    events.insert
+    Await.result(events.insert
       .value(_.date, e.date)
       .value(_.customerId, e.customerId)
       .value(_.event, e.event)
       .value(_.inputSource, e.inputSource)
-      .value(_.eventCount, e.eventCount).future()
+      .value(_.eventCount, e.eventCount).future(), 10 seconds)
   }
 
 
@@ -50,7 +49,7 @@ trait CassandraEventStorageModule extends EventStorageModule with CassandraConne
 
     object inputSource extends StringColumn(this) with PrimaryKey[String]
 
-    object event extends StringColumn(this)
+    object event extends StringColumn(this) with PrimaryKey[String]
 
     object eventCount extends IntColumn(this)
 
@@ -65,19 +64,15 @@ trait BootstrapedCassandraEventStorageModule extends CassandraEventStorageModule
 
   override def bootstrap(eventList: List[Event]): Try[Unit] = {
     Try {
-      cdb.autocreate().future()
-      cdb.autotruncate().future()
-      eventList.foreach {
-        e =>
-          events.insert()
-            .value(_.date, e.date)
-            .value(_.inputSource, e.inputSource)
-            .value(_.customerId, e.customerId)
-            .value(_.event, e.event)
-            .value(_.eventCount, e.eventCount).future()
-      }
+      Await.result(cdb.autocreate().future(), 10 seconds)
+      Await.result(cdb.autotruncate().future(), 10 seconds)
+      eventList.foreach(store)
     }
   }
+
+  def loadAll(): List[Event] = Await.result(events.select.fetch(), 10 seconds)
+
+  def countAll(): Long = Await.result(events.select.count().fetch(), 10 seconds).sum
 
   object Defaults {
     val connector = ContactPoint.local.keySpace("demo")

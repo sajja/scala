@@ -11,7 +11,7 @@ trait DomainModelModule {
 
   type Reduced[T <: KeyLike] = (Iterator[Try[(T, Int)]]) => Map[T, Int]
 
-  type Mapped[T <: KeyLike] = String => Try[(T, Int)]
+  type Mapped[T <: KeyLike] = (String, String) => Try[(T, Int)]
 
   trait DomainObjLike
 

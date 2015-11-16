@@ -1,8 +1,8 @@
 package com.example.datacruntch.processing
 
-import java.io.{FileInputStream, InputStream, File}
+import java.io.{File, FileInputStream, InputStream}
 import java.text.SimpleDateFormat
-import java.util.{Calendar, Date}
+import java.util.Calendar
 
 import com.example.datacruntch.storage.{EventStorageModule, FileSystemModule}
 
@@ -14,39 +14,38 @@ trait DataProcessingModule extends FileSystemModule with DomainModelModule {
   this: EventStorageModule with Algorithms =>
 
   object LogProcessingService {
-    def processLogs[A <: KeyLike](logDir: String, dateFormat: String)(mapFn: Mapped[A])(reduceFn: Reduced[A])(transformFn: (A, Int) => DomainObject) = {
+    def processLogs[A <: KeyLike](logDir: String, dateFormat: String)(mapFn: Mapped[A])(reduceFn: Reduced[A])(transformFn: (A, Int) => DomainObject)(implicit source: String) = {
       val df = new SimpleDateFormat(dateFormat)
+
       listFiles(logDir)(_.isFile) foreach {
         file => {
           for {
             fis <- loadFile(file)
-            processedData <- extract(fis, df)(mapFn)(reduceFn)
+            processedData <- extract(fis, df)(mapFn)(reduceFn)(source + "_" + file.getName)
             transformedData <- transform(processedData)(transformFn)
-            count <- load(transformedData)
+            count <- load(transformedData)(file.getName)
             _ <- postProcess(file)
-          } yield {
-            println(s" $count rows loaded")
-          }
+          } yield {}
         }
       }
     }
 
     def loadFile(file: File) = Try(new FileInputStream(file))
 
-    def extract[A <: KeyLike](fis: InputStream, df: SimpleDateFormat)(mapFn: Mapped[A])(reduceFn: Reduced[A]): Try[Map[A, Int]] = {
+    def extract[A <: KeyLike](fis: InputStream, df: SimpleDateFormat)(mapFn: Mapped[A])(reduceFn: Reduced[A])(source: String): Try[Map[A, Int]] = {
       Try {
         val lines = Source.fromInputStream(fis).getLines()
-        reduceFn(lines.map(mapFn))
+        reduceFn(lines.map(l => mapFn(l, source)))
       }
     }
 
     def transform[A <: KeyLike](processedRows: Map[A, Int])(transformerFn: (A, Int) => DomainObject) =
       Try(processedRows.map(data => transformerFn(data._1, data._2)))
 
-    def load(transformedRows: Iterable[DomainObject]) = {
-      Try {
-        store(transformedRows)
-      }
+    def load(transformedRows: Iterable[DomainObject])(fileName:String) = {
+      val triedLoad = store(transformedRows)
+      if (triedLoad.isSuccess) println(s"${transformedRows.size} rows sent for storing $fileName" )
+      triedLoad
     }
 
     def postProcess(file: File) = {
@@ -75,7 +74,7 @@ trait EventProcessingAlgorithms extends Algorithms with DomainModelModule {
       }
     }
 
-    def mapper(line: String)(implicit source: String) = {
+    def mapper(line: String, source: String) = {
       Try {
         val tokens = line.split(" ")
         val calendar = Calendar.getInstance()

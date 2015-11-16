@@ -11,7 +11,7 @@ import scala.util.Try
 trait EventStorageModule extends DomainModelModule {
   def store(e: DomainObject): Unit
 
-  def store(listOf: Iterable[DomainObject]): Int
+  def store(listOf: Iterable[DomainObject]): Try[Unit]
 
   def loadByDate(date: Date): List[DomainObject]
 

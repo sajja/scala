@@ -15,11 +15,11 @@ class EventAlgoTest extends FlatSpec with BeforeAndAfterEach with ShouldMatchers
 
   "Map algorithm" should "be a failure when it hits unparsable date" in {
     val logLine = "d4-08-2015-14:22 1 ARCHIVED"
-    algorithmModule.algo.mapper(logLine).isFailure should equal(true)
+    algorithmModule.algo.mapper(logLine, source).isFailure should equal(true)
   }
 
   "Map algorithm" should "create a event from a log line" in {
-    val (event, count) = algorithmModule.algo.mapper(logLine).get
+    val (event, count) = algorithmModule.algo.mapper(logLine, source).get
 
     df.format(event.date) should equal("04-08-2015-14:00")
     event.customerId should equal(1)
@@ -29,7 +29,7 @@ class EventAlgoTest extends FlatSpec with BeforeAndAfterEach with ShouldMatchers
   }
 
   "Reduce algorithm" should "aggregate records with same key" in {
-    val result: Map[algorithmModule.Key, Int] = algorithmModule.algo.reduce(dataSet.iterator.map(algorithmModule.algo.mapper))
+    val result: Map[algorithmModule.Key, Int] = algorithmModule.algo.reduce(dataSet.iterator.map(l => algorithmModule.algo.mapper(l, source)))
     result.size should equal(keySet.size)
     keySet foreach {
       case (k, v) =>
@@ -47,7 +47,7 @@ class EventAlgoTest extends FlatSpec with BeforeAndAfterEach with ShouldMatchers
       "02-vv-2015-11:22 1 ARCHIVED",
       "02-08-2015-11:22 hh ARCHIVED"
     )
-    val result = algorithmModule.algo.reduce(dataSet.iterator.map(algorithmModule.algo.mapper))
+    val result = algorithmModule.algo.reduce(dataSet.iterator.map(l => algorithmModule.algo.mapper(l, source)))
     result.size should equal(1)
   }
 
