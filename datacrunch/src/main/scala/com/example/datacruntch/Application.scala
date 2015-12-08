@@ -6,7 +6,9 @@ import com.example.datacruntch.storage.cassandra.BootstrapedCassandraEventStorag
 import scala.util.Try
 
 
-object DataProcessingApplication extends DataProcessingModule with EventProcessingAlgorithms with BootstrapedCassandraEventStorageModule
+object DataProcessingApplication extends DataProcessingModule with EventProcessingAlgorithms with BootstrapedCassandraEventStorageModule {
+
+}
 
 object Test extends DomainModelModule {
   def fn(i: Int) = if (i == 2) throw new Exception

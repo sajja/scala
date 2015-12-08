@@ -42,9 +42,10 @@ trait DataProcessingModule extends FileSystemModule with DomainModelModule {
     def transform[A <: KeyLike](processedRows: Map[A, Int])(transformerFn: (A, Int) => DomainObject) =
       Try(processedRows.map(data => transformerFn(data._1, data._2)))
 
-    def load(transformedRows: Iterable[DomainObject])(fileName:String) = {
-      val triedLoad = store(transformedRows)
-      if (triedLoad.isSuccess) println(s"${transformedRows.size} rows sent for storing $fileName" )
+    def load(transformedRows: Iterable[DomainObject])(fileName: String) = {
+      val x = transformedRows
+      val triedLoad = store(transformedRows.toList)
+      if (triedLoad.isSuccess) println(s"${transformedRows.size} rows sent for storing $fileName")
       triedLoad
     }
 
@@ -55,12 +56,14 @@ trait DataProcessingModule extends FileSystemModule with DomainModelModule {
 
 }
 
-trait Algorithms
+trait Algorithms extends DomainModelModule {
+  def reduce(mv: Iterator[Try[(Key, Int)]])
+}
 
 trait EventProcessingAlgorithms extends Algorithms with DomainModelModule {
 
-  object algo {
-    def reduce(mappedVals: Iterator[Try[(Key, Int)]]) = {
+  object algo extends Algorithms {
+    override def reduce(mappedVals: Iterator[Try[(Key, Int)]]) = {
       mappedVals.foldLeft(Map[Key, Int]()) { (agg: Map[Key, Int], tuple: Try[(Key, Int)]) =>
         if (tuple.isSuccess) {
           val row = tuple.get

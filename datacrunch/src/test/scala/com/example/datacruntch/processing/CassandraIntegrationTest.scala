@@ -1,27 +1,28 @@
-package com.example.datacruntch
+package com.example.datacruntch.processing
 
 import java.io.File
 import java.util.{Date, UUID}
 
-import com.example.datacruntch.processing.{DataProcessingModule, EventProcessingAlgorithms}
+import akka.event.slf4j.SLF4JLogging
+import com.example.datacruntch.TestData
 import com.example.datacruntch.storage.EventStorageModule
 import com.example.datacruntch.storage.cassandra.{BootstrapedCassandraEventStorageModule, CassandraConnection}
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.apache.log4j.{Priority, Logger}
+;
 
 import scala.util.Try
 
 /**
   * Created by sajith on 11/14/15.
   */
-class CassandraIntegrationTest extends FlatSpec with CassandraConnection with TestData with ShouldMatchers {
-
-  val config = ConfigFactory.load()
+class CassandraIntegrationTest extends FlatSpec with CassandraConnection with TestData with ShouldMatchers with SLF4JLogging {
 
   trait DummyStorageModule extends EventStorageModule {
     override type DomainObject = Event
 
-    override def store(listOf: Iterable[Event]): Try[Unit] = {
+    override def store(listOf: List[Event]): Try[Unit] = {
       Try(listOf.foreach(store))
     }
 
@@ -33,10 +34,12 @@ class CassandraIntegrationTest extends FlatSpec with CassandraConnection with Te
     override def loadByDate(date: Date): List[Event] = List()
   }
 
-  implicit val s = "xx"
+  implicit val source = "service1"
+
+  val config = ConfigFactory.load()
   val dateFormat = config.getString("log.dateFormat")
 
-  "" should "" in {
+  "Application" should "be able to store processed data to cassandra backend" in {
     var count = 0
     object application extends DataProcessingModule with EventProcessingAlgorithms with FailableCassandraStorage
 
@@ -60,6 +63,6 @@ class CassandraIntegrationTest extends FlatSpec with CassandraConnection with Te
 
     application.bootstrap(List())
     application.LogProcessingService.processLogs(logFilesDir, dateFormat)(algos.mapper)(algos.reduce)(algos.convert)
-    application.countAll() should equal(11407)
+    application.countAll() should equal(11404)
   }
 }

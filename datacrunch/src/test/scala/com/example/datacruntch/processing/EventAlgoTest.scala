@@ -1,9 +1,8 @@
-package com.example.datacruntch
+package com.example.datacruntch.processing
 
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import com.example.datacruntch.processing.{DomainModelModule, EventProcessingAlgorithms}
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, ShouldMatchers}
 
 class EventAlgoTest extends FlatSpec with BeforeAndAfterEach with ShouldMatchers with DomainModelModule {

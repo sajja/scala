@@ -31,6 +31,17 @@ trait DomainModelModule {
     }
   }
 
-  case class Event(date: Date, customerId: Int, inputSource: String, event: String, eventCount: Int) extends DomainObjLike
+  case class Event(date: Date, customerId: Int, inputSource: String, event: String, eventCount: Int) extends DomainObjLike with Ordered[Event] {
+    override def compare(that: Event): Int = {
+      (this.date, that.date) match {
+        case (d1: Date, d2: Date) =>
+          if (d1.equals(d2)) 0
+          else if (d1.after(d2)) 1
+          else -1
+        case _ => -1
+      }
+    }
+  }
+
 
 }

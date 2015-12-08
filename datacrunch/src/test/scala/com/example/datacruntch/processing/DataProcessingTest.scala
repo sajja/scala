@@ -1,10 +1,10 @@
-package com.example.datacruntch
+package com.example.datacruntch.processing
 
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Date, UUID}
 
-import com.example.datacruntch.processing.{DataProcessingModule, DomainModelModule, EventProcessingAlgorithms}
+import com.example.datacruntch.TestData
 import com.example.datacruntch.storage.EventStorageModule
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, ShouldMatchers}
@@ -95,7 +95,7 @@ class DataProcessingTest extends FlatSpec with BeforeAndAfterEach with ShouldMat
   trait DummyStorageModule extends EventStorageModule {
     override type DomainObject = Event
 
-    override def store(listOf: Iterable[Event]): Try[Unit] = {
+    override def store(listOf: List[Event]): Try[Unit] = {
       Try(listOf.foreach(store))
     }
 

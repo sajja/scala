@@ -1,7 +1,8 @@
 package com.example.datacruntch.storage.cassandra
 
-import java.util.Date
+import java.util.{Calendar, Date}
 
+import akka.event.slf4j.SLF4JLogging
 import com.datastax.driver.core.Cluster
 import com.example.datacruntch.storage.EventStorageModule
 import com.websudos.phantom.column.DateColumn
@@ -13,11 +14,11 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Try
 
-trait CassandraEventStorageModule extends EventStorageModule with CassandraConnection {
+trait CassandraEventStorageModule extends EventStorageModule with CassandraConnection with SLF4JLogging {
 
   override type DomainObject = Event
 
-  override def store(listOf: Iterable[Event]): Try[Unit] = {
+  override def store(listOf: List[Event]): Try[Unit] = {
     Try(listOf.foreach(store))
   }
 
@@ -38,6 +39,26 @@ trait CassandraEventStorageModule extends EventStorageModule with CassandraConne
       .value(_.eventCount, e.eventCount).future(), 10 seconds)
   }
 
+  def load(from: Date, to: Date) = {
+    val keys = getPartitionKeysInBetween(from, to)
+    Await.result(events.select.fetch(), 10 seconds)
+  }
+
+
+  def getPartitionKeysInBetween(from: Date, to: Date) = {
+    val cal = Calendar.getInstance()
+    cal.setTime(from)
+    var start = cal.getTime
+    var keys = List[Date]()
+
+    while (start.before(to)) {
+      keys = start :: keys
+      cal.add(Calendar.HOUR, 1)
+      start = cal.getTime
+    }
+
+    keys
+  }
 
   object events extends EventCasandraImpl
 
