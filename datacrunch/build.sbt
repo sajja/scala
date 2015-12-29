@@ -6,7 +6,7 @@ scalaVersion := "2.11.1"
 
 val akkaVersion = "2.3.2"
 
-val PhantomVersion = "1.13.0"
+val PhantomVersion = "1.18.0"
 
 resolvers ++= Seq(
   "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
@@ -30,6 +30,7 @@ cassandraVersion := "2.1.2"
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
+  "com.datastax.cassandra" % "cassandra-driver-core" %"2.2.0-rc3",
   "com.websudos" %% "phantom-dsl" % PhantomVersion,
   "com.websudos" %% "phantom-testkit" % PhantomVersion % "test, provided",
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",

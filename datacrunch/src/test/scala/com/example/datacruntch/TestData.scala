@@ -2,7 +2,8 @@ package com.example.datacruntch
 
 import java.io.File
 
-import com.example.datacruntch.storage.FileSystemModule
+import com.example.datacruntch.processing.FileSystemModule
+
 
 trait TestData extends FileSystemModule {
   def prepare(testDir: String)(f: (File => Boolean)): Unit = {

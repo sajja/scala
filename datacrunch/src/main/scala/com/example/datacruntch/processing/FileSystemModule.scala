@@ -1,22 +1,9 @@
-package com.example.datacruntch.storage
+package com.example.datacruntch.processing
 
 import java.io.File
-import java.util.Date
-
-import com.example.datacruntch.processing.DomainModelModule
 
 import scala.util.Try
 
-
-trait EventStorageModule extends DomainModelModule {
-  def store(e: DomainObject): Unit
-
-  def store(listOf: List[DomainObject]): Try[Unit]
-
-  def loadByDate(date: Date): List[DomainObject]
-
-  def bootstrap(events: List[DomainObject]): Try[Unit]
-}
 
 trait FileSystemModule {
 

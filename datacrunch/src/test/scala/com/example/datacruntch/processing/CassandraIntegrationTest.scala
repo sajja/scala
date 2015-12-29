@@ -1,68 +1,74 @@
 package com.example.datacruntch.processing
 
-import java.io.File
-import java.util.{Date, UUID}
+import java.util.UUID
 
 import akka.event.slf4j.SLF4JLogging
 import com.example.datacruntch.TestData
-import com.example.datacruntch.storage.EventStorageModule
-import com.example.datacruntch.storage.cassandra.{BootstrapedCassandraEventStorageModule, CassandraConnection}
-import com.typesafe.config.ConfigFactory
+import com.example.datacruntch.storage.cassandra.{BootstrappableCassandraStorageModule, CassandraConnection}
+
 import org.scalatest.{FlatSpec, ShouldMatchers}
-import org.apache.log4j.{Priority, Logger}
-;
 
-import scala.util.Try
-
-/**
-  * Created by sajith on 11/14/15.
-  */
 class CassandraIntegrationTest extends FlatSpec with CassandraConnection with TestData with ShouldMatchers with SLF4JLogging {
-
-  trait DummyStorageModule extends EventStorageModule {
-    override type DomainObject = Event
-
-    override def store(listOf: List[Event]): Try[Unit] = {
-      Try(listOf.foreach(store))
+  val system = new DocumentEventProcessingModule with BootstrappableCassandraStorageModule with MonthlyDocumentEventAggregationAlg {
+    override def store(event: AggregatedEvent): Unit = {
+      val e =
+        if (event.eventType === "EXCEPTION") new AggregatedEvent(null, null, null, 1) //this will cause a exception in cassandra.
+        else event
+      super.store(e)
     }
-
-    override def store(e: Event): Unit = {
-    }
-
-    override def bootstrap(events: List[Event]): Try[Unit] = Try(List())
-
-    override def loadByDate(date: Date): List[Event] = List()
   }
 
-  implicit val source = "service1"
+  "System" should "properly process log files and store events" in {
 
-  val config = ConfigFactory.load()
-  val dateFormat = config.getString("log.dateFormat")
 
-  "Application" should "be able to store processed data to cassandra backend" in {
-    var count = 0
-    object application extends DataProcessingModule with EventProcessingAlgorithms with FailableCassandraStorage
-
-    trait FailableCassandraStorage extends BootstrapedCassandraEventStorageModule {
-      override def store(e: Event): Unit = {
-        if (e.event === "THROW_ERROR") {
-          throw new Exception("Storage error")
-        }
-        else {
-          count += 1
-          super.store(e)
-        }
-      }
-
-    }
     val logFilesDir = "/tmp/" + UUID.randomUUID
-    prepare(logFilesDir)(_.isFile)
-    val logDir = new File("tmp").getAbsolutePath
-    val algos = application.algo
-    val files = listFiles(logFilesDir)(_.isFile)
+    prepare(logFilesDir)(f => !f.getName.contains("malformed") && !f.getName.contains("backend_exception"))
 
-    application.bootstrap(List())
-    application.LogProcessingService.processLogs(logFilesDir, dateFormat)(algos.mapper)(algos.reduce)(algos.convert)
-    application.countAll() should equal(11404)
+    system.bootstrap(List())
+    system.processLogDir(logFilesDir)
+    system.loadAll().isSuccess shouldBe true
+    system.loadAll().get.size shouldBe 808
+    listFiles(logFilesDir)(_.isFile).length shouldBe 0
+  }
+
+  "When there are errors in logfile, those errors" should "be skipped and rest of the file should be processed" in {
+    val logFilesDir = "/tmp/" + UUID.randomUUID
+
+    prepare(logFilesDir)(!_.getName.contains("backend_exception"))
+    system.bootstrap(List())
+    system.processLogDir(logFilesDir)
+    system.loadAll().isSuccess shouldBe true
+    system.loadAll().get.size shouldBe 810
+    listFiles(logFilesDir)(_.isFile).length shouldBe 0
+  }
+
+  "When there are backend erros, processing of the file" should "be stopped" in {
+    val logFilesDir = "/tmp/" + UUID.randomUUID
+
+    prepare(logFilesDir)(_.getName.contains("backend_exception"))
+    system.bootstrap(List())
+    system.processLogDir(logFilesDir)
+    system.loadAll().isSuccess shouldBe true
+    system.loadAll().get.size shouldBe 3
+    listFiles(logFilesDir)(_.isFile).length shouldBe 1
+  }
+
+  "Insert operations" should "be idempotent" in {
+    var logFilesDir = "/tmp/" + UUID.randomUUID
+
+    prepare(logFilesDir)(_.getName.contains("02-10-2015.txt"))
+    system.bootstrap(List())
+    system.processLogDir(logFilesDir)
+    system.loadAll().isSuccess shouldBe true
+    system.loadAll().get.size shouldBe 8
+    listFiles(logFilesDir)(_.isFile).length shouldBe 0
+
+    //re-run the same
+    logFilesDir = "/tmp/" + UUID.randomUUID
+    prepare(logFilesDir)(_.getName.contains("02-10-2015.txt"))
+    system.processLogDir(logFilesDir)
+    system.loadAll().isSuccess shouldBe true
+    system.loadAll().get.size shouldBe 8
+    listFiles(logFilesDir)(_.isFile).length shouldBe 0
   }
 }
