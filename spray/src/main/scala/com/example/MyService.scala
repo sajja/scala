@@ -1,60 +1,56 @@
 package com.example
 
-import akka.actor.Actor
-import com.example.json.{Person, Address}
-import spray.http.{HttpEntity, ContentTypes}
-import spray.json._
-import spray.routing._
-import spray.json.DefaultJsonProtocol
-import DefaultJsonProtocol._ // !!! IMPORTANT, else `convertTo` and `toJson` won't work correctly
-import spray.http._
+import _root_.akka.actor.Actor
+import _root_.akka.actor.ActorSystem
+import _root_.akka.actor.Props
+import _root_.akka.io.IO
+import akka.actor.Actor.Receive
+import akka.actor._
+import akka.io.IO
+import shapeless.get
+import spray.can.Http
+import spray.can.Http
+import spray.http.{Uri, HttpRequest}
+import spray.routing.HttpService
+import spray.routing.SimpleRoutingApp
+import spray.routing.{HttpService, SimpleRoutingApp}
+import spray.util.SprayActorLogging
 
-object JsonImplicits extends DefaultJsonProtocol {
-  implicit val impPerson = jsonFormat2(Address)
+object Main extends App {
+  implicit val system = ActorSystem("my-system")
+
+  val service = system.actorOf(Props[SpraySampleActor], "spray-sample-service")
+  IO(Http) ! Http.Bind(service, "localhost", 8080)
 }
 
-// we don't implement our route structure directly in the service actor because
-// we want to be able to test it independently, without having to spin up an actor
-class MyServiceActor extends Actor with MyService {
-
-  // the HttpService trait defines only one abstract member, which
-  // connects the services environment to the enclosing actor or test
-  def actorRefFactory = context
-
-  // this actor only runs our route, but you could add
-  // other things here, like request stream processing
-  // or timeout handling
-  def receive = {
-    val x = myRoute
-    runRoute(x)
+class BasicActor extends Actor {
+  override def receive: Receive = {
+    case HttpRequest(_,Uri.Path("/basic"),_,_,_)=>sender ! "Basic actor response"
   }
 }
 
-//// this trait defines our service behavior independently from the service actor
-trait MyService extends HttpService {
-  val myRoute =
-    path("g") {
-      put {
-        respondWithMediaType(MediaTypes.`text/html`) {
-          complete {
-            <html>
-              <body>
-                <h1>put done</h1>
-              </body>
-            </html>
-          }
-        }
-      } ~ get {
-        respondWithMediaType(MediaTypes.`application/json`) {
-          complete {
-            val address = new Address(41, "backer street")
-            val emp = new Person("sherlock holmns", address)
+class SpraySampleActor extends Actor with SpraySampleService {
+  def actorRefFactory = context
+  def receive = runRoute(spraysampleRoute2)
+}
 
-            implicit val addC = jsonFormat2(Address)
-            implicit val addP = jsonFormat2(Person)
-            HttpEntity(emp.toJson.prettyPrint)
-          }
+trait SpraySampleService extends HttpService {
+  val spraysampleRoute1 = {
+    path("entity" / Segment) { id =>
+      get {
+        complete(s"list $id")
+      } ~
+        post {
+          complete("create")
         }
+    }
+  }
+  val spraysampleRoute2 = {
+    path("entity") {
+      get {
+        complete(s"list ")
       }
     }
+  }
+
 }

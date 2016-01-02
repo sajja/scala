@@ -23,13 +23,27 @@ object PatternMatching {
     }
   }
 
-  def main(args: Array[String]) {
-    firstTest(1)
-    firstTest(12)
-    firstTest(120)
-    typeTest(1)
-    typeTest(1L)
-    typeTest("")
-    typeTest(None)
+  def multi(str:String) = {
+    val m = Seq("X", "Y", "Z")
+    str match {
+      case "A" => println("A")
+      case "B" | "C" => println("B or C")
+      case m => println("xxxx")
+      case _ => println("Other")
+    }
+
+  }
+
+
+  def main(args: Array[String]): Unit = {
+    val l = List((1,2),(3,4),(5,6))
+
+    val j:Map[String,String] = l.foldLeft(Map[String,String]())((x: Map[String, String], tuple: (Int, Int)) => Map(tuple._1.toString->tuple._2.toString))
+
+    multi("A")
+    multi("1A")
+    multi("B")
+    multi("C")
+    multi("X")
   }
 }
