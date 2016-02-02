@@ -4,12 +4,17 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
-/**
- * Created by sajith on 7/25/15.
- */
-object DefaultDataCrunch {
+import scala.util.Random
 
-  def crunch(file:File) =  {}
+/**
+  * Created by sajith on 7/25/15.
+  */
+object DefaultDataCrunch {
+  val maxEventsPerDoc = 5
+  val maxEventsPerCust = 1000
+
+  def crunch(file: File) = {}
+
   def crunch(dir: String, from: Date, to: Date) = {
     val df = new SimpleDateFormat("dd-MM-yyyy")
     val cal = Calendar.getInstance()
@@ -21,18 +26,26 @@ object DefaultDataCrunch {
       cal.add(Calendar.DATE, 1)
       curr = cal.getTime
       val file = new File(dir + "/" + fileName)
-//      if (file.exists()) crunch(file)
+      //      if (file.exists()) crunch(file)
     }
   }
 
   def main(args: Array[String]) {
     val cal = Calendar.getInstance()
     val date = cal.getTime
-    cal.add(Calendar.MONTH,2)
+    cal.add(Calendar.MONTH, 2)
     val to = cal.getTime
 
-    DefaultDataCrunch.crunch("/home/sajith/scratch/scala/datacrunch/logs",date,to)
+    DefaultDataCrunch.crunch("/home/sajith/scratch/scala/datacrunch/logs", date, to)
   }
 
-
+  def getPositiveRandom(max: Int): Int = {
+    val rand = new Random
+    val num = rand.nextInt() % max
+    if (num == 0) getPositiveRandom(max)
+    else if (num < 0)
+      num * -1
+    else
+      num
+  }
 }
