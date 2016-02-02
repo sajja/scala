@@ -58,13 +58,11 @@ object RabbitReactiveStream extends App {
     implicit val system = ActorSystem("Sys")
     implicit val materializer = ActorMaterializer()
     val address = scala.collection.immutable.Seq[Address](Address("dev.localhost", 5672))
-    val config = new ConnectionSettings(address, "/", "pagero", "Pagdia1", None, 3 second, true, 333 seconds, None)
+    val config = new ConnectionSettings(address, "/", "pxxxxo", "Pxxdxx1", None, 3 second, true, 333 seconds, None)
     val connection = Connection(config)
     val queue = connection.consume("test")
     Source.fromPublisher(queue).runWith(Sink.foreach(x => println(s"${new String(x.message.body.toArray)} xxx")))
   }
 
-
   stream()
-
 }
