@@ -45,6 +45,7 @@ object CRUDexamples {
 
 
   def main(args: Array[String]) {
+    aircrafts.ddl.create
     bootstrap()
     implicit val j = 10000
     println("\t=========Find by id positive match demo=========")
@@ -115,9 +116,7 @@ object CRUDexamples {
 
     //    l.foreach(println)
     session.close()
-
-    val db = Database.forConfig("pg")
-
+//    val db = Database.forConfig("pg")
 
 
 

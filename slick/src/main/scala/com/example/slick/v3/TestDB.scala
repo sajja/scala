@@ -2,7 +2,7 @@ package com.example.slick.v3
 
 import java.util.UUID
 
-import slick.driver.PostgresDriver.api._
+//import slick.driver.PostgresDriver.api._
 import slick.lifted.ProvenShape
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -10,6 +10,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 
+/*
 object TestDB {
   val db = Database.forConfig("pg")
   val race = TableQuery[Race]
@@ -111,4 +112,4 @@ class BigData(tag: Tag) extends Table[(Int, UUID)](tag, "bigdata") {
 
   override def * : ProvenShape[(Int, UUID)] = (id, data)
 }
-
+*/
