@@ -1,4 +1,4 @@
-package com.example.state
+package com.example.state.world
 
 import scala.util.Random
 
