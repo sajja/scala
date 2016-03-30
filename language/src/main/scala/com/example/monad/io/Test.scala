@@ -55,6 +55,18 @@ object Test {
     readLine
   }
 
+  def PrintLine(str:String) = IO {println(str)}
+
+
+  val v = for {
+    x <-ReadLine
+    y <-PrintLine(x)
+  } yield {}
+
+  v.run
+
+
+
   def op1(i: Iterator[String]): Iterator[String] = {
     i.map(line => s"s$line op1")
   }
@@ -83,7 +95,7 @@ object Test {
       op3(x)
     })
 
-    s.getLines()
+//    s.getLines()
   }
 
 
