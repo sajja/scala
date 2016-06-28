@@ -47,7 +47,7 @@ class Dep[I, A](f: I => A) {
   def map[B](g: A => B): Dep[I, B] = flatMap(a => unit(g(a)))
 }
 
-object Test extends App {
+object Test1 extends App {
 
   def d1() = (d: Dependency) => s"hello ${d.i}"
 
