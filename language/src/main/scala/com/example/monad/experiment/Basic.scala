@@ -28,6 +28,10 @@ case class TryOption[+A](t: Try[Option[A]]) extends AnyVal {
     }
     TryOption(z)
   }
+
+  def map[B](f: A => B): TryOption[B] = {
+    TryOption(t.map(op => op.map(f)))
+  }
 }
 
 object TestBasic {
