@@ -45,7 +45,7 @@ object CRUDexamples {
 
 
   def main(args: Array[String]) {
-    aircrafts.ddl.create
+//    aircrafts.ddl.create
     bootstrap()
     implicit val j = 10000
     println("\t=========Find by id positive match demo=========")

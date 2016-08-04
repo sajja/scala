@@ -12,7 +12,7 @@ import io.scalac.amqp.{Connection, ConnectionSettings, Address}
 import scala.util.Random
 
 
-object EventEmitter extends App{
+object EventEmitter extends App {
 
   private def emitSensorData(sensor: String, data: String, date: Date) = {
     val sensorData = s"${df.format(date)} $sensor $data"
@@ -39,7 +39,9 @@ object EventEmitter extends App{
     else
       num
   }
+
   def emit() = generateRandomData(new Date(), 1)
+
   val factory = new ConnectionFactory()
   factory.setHost("dev.localhost")
   factory.setUsername("pagero")
@@ -53,7 +55,9 @@ object EventEmitter extends App{
 }
 
 object RabbitReactiveStream extends App {
+
   import scala.concurrent.duration._
+
   def stream() = {
     implicit val system = ActorSystem("Sys")
     implicit val materializer = ActorMaterializer()

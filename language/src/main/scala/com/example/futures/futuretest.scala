@@ -6,8 +6,8 @@ import scala.concurrent.Future
 import scala.util.{Try, Failure, Random, Success}
 
 /**
- * Created by sajith on 7/24/14.
- */
+  * Created by sajith on 7/24/14.
+  */
 object SlowProcess {
   def thisTakeLongTimeToExecute(): Int = {
     println("Slow method is starting")
@@ -27,7 +27,8 @@ object BlockingCall {
 }
 
 object UnBlockingCall {
-  def fn(f:Try[Int]) = println("vvvv")
+  def fn(f: Try[Int]) = println("vvvv")
+
   def main(args: Array[String]) {
     println("Staring to call slow method")
     val abc: Future[Int] = Future[Int] {
@@ -67,7 +68,7 @@ object AnotherTest {
 
 object MultipleDependentFutures {
 
-  def calculateScore(name:String, score:Int): Future[Int] = {
+  def calculateScore(name: String, score: Int): Future[Int] = {
     Future[Int] {
       Thread.sleep(100)
       score
@@ -76,11 +77,11 @@ object MultipleDependentFutures {
 
   def main(args: Array[String]) {
     val mS = calculateScore("ME", 100)
-    val yS = calculateScore("U",1000)
+    val yS = calculateScore("U", 1000)
 
     val didIwin = for {
       myScore <- mS
-      yourScore <-yS
+      yourScore <- yS
     } yield myScore > yourScore
 
     didIwin onSuccess {
@@ -88,5 +89,28 @@ object MultipleDependentFutures {
     }
 
     Thread.sleep(1000)
+  }
+}
+
+
+object AnotherTest1 {
+  def test1(i: Int) = Future {
+    Thread.sleep(i)
+    println("Test1 called")
+    throw new Exception("test 1 exception")
+  }.recoverWith {
+    case _ => Future {
+      throw new Exception("test w exception")
+    }
+  }
+
+
+  def main(args: Array[String]) {
+
+    test1(1000).onComplete {
+      case i => println(i)
+    }
+
+    Thread.sleep(6000)
   }
 }

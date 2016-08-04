@@ -2,25 +2,36 @@ organization  := "com.example"
 
 version       := "0.1"
 
-scalaVersion  := "2.11"
+scalaVersion := "2.11.4"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
-libraryDependencies ++= {
-  val akkaV = "2.1.4"
-  val sprayV = "1.1.1"
-  Seq(
-    "io.spray"            %   "spray-client"     % sprayV,
-    "io.spray"            %   "spray-can"     % sprayV,
-    "io.spray" %%  "spray-json" % "1.2.5",
-    "org.json4s" %% "json4s-native" % "3.2.4",
-//    "io.spray"            %   "spray-json"     % sprayV,
-    "io.spray"            %   "spray-routing" % sprayV,
-    "io.spray"            %   "spray-testkit" % sprayV  % "test",
-    "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
-    "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
-    "org.specs2"          %%  "specs2"        % "2.2.3" % "test"
-  )
-}
+
+val akkaVersion = "2.3.6"
+val sprayVersion = "1.3.1"
+
+/* dependencies */
+libraryDependencies ++= Seq (
+  "com.github.nscala-time" %% "nscala-time" % "1.4.0"
+  // -- testing --
+  , "org.scalatest" %% "scalatest" % "2.2.2" % "test"
+  , "org.scalamock" %% "scalamock-scalatest-support" % "3.1.4" % "test"
+  // -- Logging --
+  ,"ch.qos.logback" % "logback-classic" % "1.1.2"
+  // -- Akka --
+  ,"com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test"
+  ,"com.typesafe.akka" %% "akka-actor" % akkaVersion
+  ,"com.typesafe.akka" %% "akka-slf4j" % akkaVersion
+  // -- Spray --
+  ,"io.spray" %% "spray-routing" % sprayVersion
+  ,"io.spray" %% "spray-can" % sprayVersion
+  ,"io.spray" %% "spray-httpx" % sprayVersion
+  ,"io.spray" %% "spray-client" % sprayVersion
+  ,"io.spray" %% "spray-testkit" % sprayVersion % "test",
+  // -- Json --
+   "io.spray"            %   "spray-json_2.11"     % sprayVersion
+  ,"org.json4s" %% "json4s-native" % "3.2.11"
+  ,"com.typesafe.play" %% "play-json" % "2.4.0-M1"
+)
 
 Revolver.settings
