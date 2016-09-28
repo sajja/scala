@@ -13,5 +13,6 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.2.2",
   "com.typesafe.akka" %% "akka-http-experimental" % "2.0.1",
   "io.scalac" %% "reactive-rabbit" % "1.0.3",
+  "io.reactivex" %% "rxscala" % "0.25.0",
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test"
 )
