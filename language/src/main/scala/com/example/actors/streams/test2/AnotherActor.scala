@@ -13,7 +13,4 @@ import java.nio.file.Paths
 
 
 object AnotherActor {
-  val source: Source[Int, NotUsed] = Source(1 to 100)
-
-
 }

@@ -1,5 +1,11 @@
 package com.example.statemachine
 
+import akka.actor.Address
+import com.example.generics.variance.Employee
+import com.example.statemachine.Client.{ContactAction, EmployeeAction}
+
+import scalaz.{Coproduct, Free}
+
 class MyFSM[I, S](val state: S, f: (S, I) => S) {
   def runState(i: I): MyFSM[I, S] = {
     new MyFSM[I, S](f(state, i), f)

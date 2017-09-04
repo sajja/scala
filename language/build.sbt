@@ -1,4 +1,4 @@
-name := "scala-db"
+name := "scala"
 
 description := "Scala db examples"
 

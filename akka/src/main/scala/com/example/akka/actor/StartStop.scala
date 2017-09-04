@@ -34,6 +34,7 @@ class StartStopActor2 extends Actor {
 
 object StartStopActor1 extends App {
   val system = ActorSystem("input")
+
   val first = system.actorOf(Props[StartStopActor1], "first")
   first ! "stop"
 }
