@@ -73,9 +73,9 @@ object OptimisticLockingTest {
       (suppliers.schema ++ coffees.schema).create,
 
       // Insert some suppliers
-      suppliers +=(101, "Acme, Inc.", "99 Market Street", "Groundsville", "CA", "95199"),
-      suppliers +=(49, "Superior Coffee", "1 Party Place", "Mendocino", "CA", "95460"),
-      suppliers +=(150, "The High Ground", "100 Coffee Lane", "Meadows", "CA", "93966"),
+      suppliers += (101, "Acme, Inc.", "99 Market Street", "Groundsville", "CA", "95199"),
+      suppliers += (49, "Superior Coffee", "1 Party Place", "Mendocino", "CA", "95460"),
+      suppliers += (150, "The High Ground", "100 Coffee Lane", "Meadows", "CA", "93966"),
       coffees ++= Seq(
         ("Colombian", 101, 7.99, 0, 0, 0),
         ("French_Roast", 49, 8.99, 0, 0, 0),
@@ -98,7 +98,7 @@ object OptimisticLockingTest {
   def insert(): Unit = {
     val db = DatabaseWrapper.db
     val ins = DBIO.seq(
-      coffees +=("Test", 101, 10.0, 0, 0, 0)
+      coffees += ("Test", 101, 10.0, 0, 0, 0)
     )
 
     Await.result(db.run(ins), 10 seconds)
@@ -135,10 +135,11 @@ object OptimisticLockingTest {
     bootstrap()
     //    insert()
     listAll()
-    val ac1 = find(101)//0
-    val ac2 = find(101)//0
-    update(Aircraft(ac1.id, ac1.name, "Experimental1"))//->1
-    update(Aircraft(ac1.id, ac1.name, "Experimental2"))//0
+    val ac1 = find(101)
+    //0
+    val ac2 = find(101) //0
+    update(Aircraft(ac1.id, ac1.name, "Experimental1")) //->1
+    update(Aircraft(ac1.id, ac1.name, "Experimental2")) //0
     println(find(101))
 
 
