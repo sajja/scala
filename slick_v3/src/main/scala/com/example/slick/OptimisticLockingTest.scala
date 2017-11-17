@@ -1,13 +1,12 @@
 package com.example.slick
 
 import com.example.slick.util.DatabaseWrapper
-import com.example.slick.util.domain.{User, Users, Aircrafts, Aircraft}
-import slick.lifted.TableQuery
+import com.example.slick.util.domain._
 import slick.driver.PostgresDriver.api._
+import slick.lifted.TableQuery
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
 object OptimisticLockingTest {
@@ -52,15 +51,40 @@ object OptimisticLockingTest {
     def supplier = foreignKey("SUP_FK", supID, suppliers)(_.id)
   }
 
-  val aircrafts = TableQuery[Aircrafts]
+
+
+  abstract class AbstarctRepo[T <: UnVersionedEntity[T], X <: Entity[T]] {
+    def eR: TableQuery[X]
+
+    def update1(ent: T) = {
+      eR.filter((e: Entity[T]) => e.id === ent.id && e.version === ent.version).update(ent.bumpVersion())
+    }
+  }
+
+  abstract class AbstarctVersionedRepo[T <: VersionedEntity[T], X <: Entity[T]] extends AbstarctRepo[T,X] {
+    def eR: TableQuery[X]
+
+    override def update1(ent: T) = {
+      eR.filter((e: Entity[T]) => e.id === ent.id && e.version === ent.version).update(ent.bumpVersion())
+    }
+  }
+
+
+  object AircraftComponent extends AbstarctRepo[Aircraft, Aircrafts] {
+    val aircrafts = TableQuery[Aircrafts]
+    val eR = TableQuery[Aircrafts]
+
+    def withVersion() = {
+    }
+  }
 
   def bootstrap() = {
     val db = DatabaseWrapper.db
     val setup = DBIO.seq(
-      aircrafts.schema.drop,
-      aircrafts.schema.create,
-      aircrafts += Aircraft(100, "x-wing", "iron"),
-      aircrafts += Aircraft(101, "y-wing", "Antimatter")
+      AircraftComponent.aircrafts.schema.drop,
+      AircraftComponent.aircrafts.schema.create,
+      AircraftComponent.aircrafts += Aircraft(100, "x-wing", "iron"),
+      AircraftComponent.aircrafts += Aircraft(101, "y-wing", "Antimatter")
     )
 
     Await.result(db.run(setup), 10 seconds)
@@ -92,7 +116,7 @@ object OptimisticLockingTest {
   def listAll(): Unit = {
     val db = DatabaseWrapper.db
     //    println(Await.result(db.run(coffees.map(coffee => (coffee.name, coffee.price, coffee.version)).result), 10 second))
-    println(Await.result(db.run(aircrafts.result), 10 second))
+    println(Await.result(db.run(AircraftComponent.aircrafts.result), 10 second))
   }
 
   def insert(): Unit = {
@@ -106,7 +130,7 @@ object OptimisticLockingTest {
 
   def find(id: Int): Aircraft = {
     val db = DatabaseWrapper.db
-    Await.result(db.run(aircrafts.filter(_.id === id).result), 10 seconds).head
+    Await.result(db.run(AircraftComponent.aircrafts.filter(_.id === id).result), 10 seconds).head
   }
 
   def update(cof: String): Unit = {
@@ -124,33 +148,43 @@ object OptimisticLockingTest {
     println(s"records $i udpated")
   }
 
-  def update(ac: Aircraft) = {
+  //  def update(ac: Aircraft) = {
+  //    val db = DatabaseWrapper.db
+  //    val i = Await.result(db.run(AircraftComponent.aircrafts.filter(a => a.id === ac.id && a.version === ac.version).update(ac.bumpVersion())), 10 seconds)
+  //    if (i != 0) println("Updated")
+  //    else println("Stale object")
+  //  }
+
+
+  def update2(ac: Aircraft) = {
     val db = DatabaseWrapper.db
-    val i = Await.result(db.run(aircrafts.filter(a => a.id === ac.id && a.version === ac.version).update(ac.bumpVersion())), 10 seconds)
-    if (i != 0) println("Updated")
-    else println("Stale object")
+    val q = AircraftComponent.aircrafts.filter(a => a.id === ac.id)
+    val yyy = Await.result(db.run(q.result), 10 seconds)
+    println(yyy)
+    val q2 = q.filter(e => e.version === ac.version)
+    val z = q2.update(ac.bumpVersion())
+    Await.result(db.run(z), 10 seconds)
   }
+
 
   def main(args: Array[String]) {
+    val db = DatabaseWrapper.db
     bootstrap()
-    //    insert()
     listAll()
-    val ac1 = find(101)
-    //0
-    val ac2 = find(101) //0
-    update(Aircraft(ac1.id, ac1.name, "Experimental1")) //->1
-    update(Aircraft(ac1.id, ac1.name, "Experimental2")) //0
+    val ac4 = find(101)
+
     println(find(101))
-
-
-    //    val q1 = find("Test")
-    //    val q2 = find("Test")
-    //
-    //    update(1000, q1)
-    //    listAll()
-    //    update(2000, q1)
-    //    listAll()
-    //    println("xxx")
-    //    update(new Coffees("Test"))
+    val i1 = AircraftComponent.update1(ac4)
+    Await.result(db.run(i1), 10 seconds)
+    println(find(101))
+    val i2 = AircraftComponent.update1(ac4)
+    Await.result(db.run(i2), 10 seconds)
+    println(find(101))
+    val ac5 = find(101)
+    val i3 = AircraftComponent.update1(ac5)
+    Await.result(db.run(i3), 10 seconds)
+    println(find(101))
+    println(find(101))
   }
 }
+

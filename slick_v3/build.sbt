@@ -2,6 +2,8 @@ name := "scala-db"
 
 description := "Scala db examples"
 
+scalaVersion := "2.11.3"
+
 val akkaVersion = "2.3.2"
 
 libraryDependencies ++= Seq(
