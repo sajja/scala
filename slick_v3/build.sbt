@@ -12,6 +12,8 @@ libraryDependencies ++= Seq(
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
   "com.googlecode.flyway" % "flyway-core" % "2.1.1",
   "c3p0" % "c3p0" % "0.9.0.4",
+  "com.github.sstone" %% "amqp-client" % "1.5",
+  "org.scalatest" % "scalatest" % "3.0.4" % "test",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test"

@@ -1,7 +1,12 @@
 package com.example.scratchpad
 
-import java.net.Socket
+import java.io.File
+import java.net.{Socket, URL}
 import java.util.Date
+
+import sun.net.www.http.HttpClient
+
+import scala.concurrent.Future
 
 case class Connection()
 
@@ -97,15 +102,19 @@ object Test1 extends App {
 
 trait XXX {
   //Date=>String=>String
-  type Pref[T] = String=>T
+  type Pref[T] = String => T
+
   def df(date: Date)(df: String): String = {
     s"Formated date"
   }
 
-  val i:Date=>Pref[String] = df
+  def doSomeRiskyOp(i: Int, j: Int): Int = {
+    if (j == 0) {
+      throw new Exception("Div by zero")
+    }
 
-
-
+    i / j
+  }
 }
 
 

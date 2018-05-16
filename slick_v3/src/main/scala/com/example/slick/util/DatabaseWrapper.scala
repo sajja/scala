@@ -6,6 +6,7 @@ object DatabaseWrapper {
   val ds = {
     val ds = new org.postgresql.ds.PGSimpleDataSource
     ds.setUser("postgres")
+    ds.setPortNumber(15534)
     ds.setPassword("postgres")
     ds.setDatabaseName("scala_test")
     val internalDb = Database.forDataSource(ds)

@@ -2,8 +2,8 @@ package com.example.futures
 
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Try, Failure, Random, Success}
+import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Random, Success, Try}
 
 /**
   * Created by sajith on 7/24/14.
@@ -106,11 +106,16 @@ object AnotherTest1 {
 
 
   def main(args: Array[String]) {
+    import scala.concurrent.duration._
+    Future(Seq(1,2)).flatMap((ints: Seq[Int]) => Future{
+      val z = ints.map(i=>Future("xxxx"))
+      z
+    })
+//    val x = for {
+//      i <- Future(Seq(1,2,3))
+//      j <- i.map(x=>Future(x))
+//    } yield ()
+//    println(Await.result(x,10 second))
 
-    test1(1000).onComplete {
-      case i => println(i)
-    }
-
-    Thread.sleep(6000)
   }
 }
