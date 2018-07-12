@@ -1,6 +1,8 @@
 package com.example.fpdemo
 
 import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 trait Maybe1[A] {
   def flatMap[B](f: A => Maybe1[B]): Maybe1[B]
@@ -36,6 +38,40 @@ object FPDemo2 {
 
   def readValue() = null
 
+  def f1() = Future {
+    Thread.sleep(1000)
+    println("F1")
+  }
+
+  def f2() = Future {
+    Thread.sleep(1000)
+    println("F2")
+  }
+
+  def f3() = Future {
+    Thread.sleep(1000)
+    println("F3")
+  }
+
+
+  def f4() = {
+    val f = f1()
+    f.onComplete {
+      case _ => println(s"$f F1 one on F4")
+    }
+    f
+  }
+
+  def f5() = {
+    val f = for {
+      _ <- f2()
+      _ <- f4()
+    } yield ()
+    f.onComplete {
+      case _ => println(s"$f F1 one on F5")
+    }
+    f
+  }
 
   def main(args: Array[String]): Unit = {
     println(f(42).flatMap((str: String) => g(str)))
@@ -66,10 +102,12 @@ object FPDemo2 {
         r3 <- f3
       } yield ()
 
-      import scala.concurrent.duration._
       Await.result(result, 2 second)
       result
     }
+
+
+    Await.result(f5(), 5 second)
 
 
   }

@@ -9,6 +9,12 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Random
 
+object QueueType {
+  sealed trait EnumVal {
+    val name: String
+  }
+  case object DefaultQueue extends EnumVal { val name = "default-queue" }
+}
 
 class T1s(tag: Tag) extends Table[T1](tag, "T1") {
   def id = column[Int]("ID", O.PrimaryKey)
@@ -23,7 +29,9 @@ class T2s(tag: Tag) extends Table[T2](tag, "T2") {
 
   def name = column[Int]("T1Name")
 
-  def * = (id, name) <> (T2.tupled, T2.unapply _)
+  def status = column[Int]("status")
+
+  def * = (id, name, status) <> (T2.tupled, T2.unapply _)
 }
 
 class T3s(tag: Tag) extends Table[T3](tag, "T3") {
@@ -44,7 +52,7 @@ class Users(tag: Tag) extends Table[User](tag, "USERS") {
 
 case class T1(id: Int, name: String)
 
-case class T2(id: Int, name: Int)
+case class T2(id: Int, name: Int, status: Int)
 
 case class T3(id: Int, name: Int)
 
@@ -130,7 +138,7 @@ object TestDB extends Db {
       //      addresses += Address(5, "Melbourne", 2)
     )
 
-    Await.result(db.run(setup), 10 seconds)
+    Await.result(db.run(setup.transactionally), 10 seconds)
   }
 
   def main(args: Array[String]) {
@@ -158,7 +166,7 @@ object TestDB extends Db {
     var y = for {
       t1o <- (t1s returning t1s).insertOrUpdate(T1(111, "1000"))
       x <- t1o match {
-        case Some(t1) => (t2s returning t2s) ++= l1.map(i => T2(i, t1.id))
+        case Some(t1) => (t2s returning t2s) ++= l1.map(i => T2(i, t1.id, 1))
       }
       y <- (t3s returning t3s) ++= x.flatMap(j => l2.map(k => T3(Random.nextInt(), j.id)))
     } yield ()
@@ -167,7 +175,7 @@ object TestDB extends Db {
     y = for {
       t1o <- (t1s returning t1s).insertOrUpdate(T1(111, "1000"))
       x <- t1o match {
-        case Some(t1) => createT2s(l1.map(i=>T2(i,t1.id)))
+        case Some(t1) => createT2s(l1.map(i => T2(i, t1.id, 1)))
       }
       y <- (t3s returning t3s) ++= x.flatMap(j => l2.map(k => T3(Random.nextInt(), j.get.id)))
     } yield ()
@@ -198,10 +206,16 @@ object TestDB extends Db {
     println("T3---------------------")
     val r3 = Await.result(db.run(t3s.result), 10 seconds)
     println(r3)
-    val r4 = Await.result(db.run(users.filter(_.id === -21).result.headOption),4 second)
+    val r4 = Await.result(db.run(users.filter(_.id === -21).result.headOption), 4 second)
     println(r4)
 
 
+    val user1 = Await.result(db.run(users.filter(_.id === 2).result), 3 second).head
+    println(s"===>$user1")
+    println(Await.result(db.run((users returning (users)).insertOrUpdate(user1.copy(id = 2))), 2 second))
+
   }
+
+
 }
 
