@@ -52,16 +52,15 @@ object OptimisticLockingTest {
   }
 
 
-
   abstract class AbstarctRepo[T <: UnVersionedEntity[T], X <: Entity[T]] {
     def eR: TableQuery[X]
 
     def update1(ent: T) = {
-      eR.filter((e: Entity[T]) => e.id === ent.id && e.version === ent.version).update(ent.bumpVersion())
+      eR.filter((e: Entity[T]) => e.id === ent.id).update(ent)
     }
   }
 
-  abstract class AbstarctVersionedRepo[T <: VersionedEntity[T], X <: Entity[T]] extends AbstarctRepo[T,X] {
+  abstract class AbstarctVersionedRepo[T <: VersionedEntity[T], X <: Entity[T]] extends AbstarctRepo[T, X] {
     def eR: TableQuery[X]
 
     override def update1(ent: T) = {
@@ -69,10 +68,17 @@ object OptimisticLockingTest {
     }
   }
 
-
-  object AircraftComponent extends AbstarctRepo[Aircraft, Aircrafts] {
+  object UnVersionedAircraftComponent extends AbstarctRepo[Aircraft, Aircrafts] {
     val aircrafts = TableQuery[Aircrafts]
     val eR = TableQuery[Aircrafts]
+
+    def withVersion() = {
+    }
+  }
+
+  object VersionedAircraftComponent extends AbstarctVersionedRepo[VersionedAircraft, VersionedAircrafts] {
+    val aircrafts = TableQuery[VersionedAircrafts]
+    val eR = TableQuery[VersionedAircrafts]
 
     def withVersion() = {
     }
@@ -81,10 +87,10 @@ object OptimisticLockingTest {
   def bootstrap() = {
     val db = DatabaseWrapper.db
     val setup = DBIO.seq(
-      AircraftComponent.aircrafts.schema.drop,
-      AircraftComponent.aircrafts.schema.create,
-      AircraftComponent.aircrafts += Aircraft(100, "x-wing", "iron"),
-      AircraftComponent.aircrafts += Aircraft(101, "y-wing", "Antimatter")
+      UnVersionedAircraftComponent.aircrafts.schema.drop,
+      UnVersionedAircraftComponent.aircrafts.schema.create,
+      UnVersionedAircraftComponent.aircrafts += Aircraft(100, "x-wing", "iron"),
+      UnVersionedAircraftComponent.aircrafts += Aircraft(101, "y-wing", "Antimatter")
     )
 
     Await.result(db.run(setup), 10 seconds)
@@ -115,8 +121,6 @@ object OptimisticLockingTest {
 
   def listAll(): Unit = {
     val db = DatabaseWrapper.db
-    //    println(Await.result(db.run(coffees.map(coffee => (coffee.name, coffee.price, coffee.version)).result), 10 second))
-    println(Await.result(db.run(AircraftComponent.aircrafts.result), 10 second))
   }
 
   def insert(): Unit = {
@@ -130,7 +134,13 @@ object OptimisticLockingTest {
 
   def find(id: Int): Aircraft = {
     val db = DatabaseWrapper.db
-    Await.result(db.run(AircraftComponent.aircrafts.filter(_.id === id).result), 10 seconds).head
+    Await.result(db.run(UnVersionedAircraftComponent.aircrafts.filter(_.id === id).result), 10 seconds).head
+  }
+
+
+  def findVersioned(id: Int): VersionedAircraft = {
+    val db = DatabaseWrapper.db
+    Await.result(db.run(VersionedAircraftComponent.aircrafts.filter(_.id === id).result), 10 seconds).head
   }
 
   def update(cof: String): Unit = {
@@ -158,9 +168,8 @@ object OptimisticLockingTest {
 
   def update2(ac: Aircraft) = {
     val db = DatabaseWrapper.db
-    val q = AircraftComponent.aircrafts.filter(a => a.id === ac.id)
+    val q = UnVersionedAircraftComponent.aircrafts.filter(a => a.id === ac.id)
     val yyy = Await.result(db.run(q.result), 10 seconds)
-    println(yyy)
     val q2 = q.filter(e => e.version === ac.version)
     val z = q2.update(ac.bumpVersion())
     Await.result(db.run(z), 10 seconds)
@@ -171,20 +180,30 @@ object OptimisticLockingTest {
     val db = DatabaseWrapper.db
     bootstrap()
     listAll()
-    val ac4 = find(101)
+    var ac4 = find(101)
 
-    println(find(101))
-    val i1 = AircraftComponent.update1(ac4)
+    //    println(find(101))
+    val i1 = UnVersionedAircraftComponent.update1(ac4.copy(name = ac4.name + "1"))
     Await.result(db.run(i1), 10 seconds)
-    println(find(101))
-    val i2 = AircraftComponent.update1(ac4)
+    val i2 = UnVersionedAircraftComponent.update1(ac4.copy(name = ac4.name + "2"))
     Await.result(db.run(i2), 10 seconds)
     println(find(101))
-    val ac5 = find(101)
-    val i3 = AircraftComponent.update1(ac5)
+
+    var ac5 = findVersioned(101)
+    val i3 = VersionedAircraftComponent.update1(ac5.copy(name = ac5.name + "___111"))
     Await.result(db.run(i3), 10 seconds)
+    val i4 = VersionedAircraftComponent.update1(ac5.copy(name = ac5.name + "___222"))
+    Await.result(db.run(i4), 10 seconds)
     println(find(101))
-    println(find(101))
+
+    //    val i2 = AircraftComponent.update1(ac4)
+    //    Await.result(db.run(i2), 10 seconds)
+    //    println(find(101))
+    //    val ac5 = find(101)
+    //    val i3 = AircraftComponent.update1(ac5)
+    //    Await.result(db.run(i3), 10 seconds)
+    //    println(find(101))
+    //    println(find(101))
   }
 }
 

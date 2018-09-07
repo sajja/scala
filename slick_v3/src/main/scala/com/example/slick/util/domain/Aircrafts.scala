@@ -15,6 +15,10 @@ case class Aircraft(override val id: Int, name: String, propulsion: String, over
   override def bumpVersion() = Aircraft(id, name, propulsion, version + 1)
 }
 
+case class VersionedAircraft(override val id: Int, name: String, propulsion: String, override val version: Int = 0) extends VersionedEntity[VersionedAircraft](id, version) {
+  override def bumpVersion() = VersionedAircraft(id, name, propulsion, version + 1)
+}
+
 trait Version {
   def id: Rep[Int]
 
@@ -35,6 +39,17 @@ class Aircrafts(tag: Tag) extends Entity[Aircraft](tag, "aircraft") with Version
 
 
   def * = (id, name, propulsion, version) <> (Aircraft.tupled, Aircraft.unapply _)
+}
+
+
+class VersionedAircrafts(tag: Tag) extends Entity[VersionedAircraft](tag, "aircraft") with Version {
+
+  def name = column[String]("name")
+
+  def propulsion = column[String]("propulsion")
+
+
+  def * = (id, name, propulsion, version) <> (VersionedAircraft.tupled, VersionedAircraft.unapply _)
 }
 
 case class User(id: Int, name: String, email: String, version: Int = 0)
