@@ -1,6 +1,6 @@
 package com.example.slick.util.domain
 
-import scala.slick.driver.PostgresDriver.simple._
+import slick.driver.PostgresDriver.api._
 
 
 case class Player(name: String, id: Int = 0)

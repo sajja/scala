@@ -1,5 +1,5 @@
 package com.example.slick.util.domain
-import scala.slick.driver.PostgresDriver.simple._
+import slick.driver.PostgresDriver.api._
 
 /**
  * Created by sajith on 8/22/14.

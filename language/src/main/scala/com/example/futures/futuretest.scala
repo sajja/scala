@@ -1,7 +1,10 @@
 package com.example.futures
 
 
+import java.lang.Exception
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Random, Success, Try}
 
@@ -106,16 +109,48 @@ object AnotherTest1 {
 
 
   def main(args: Array[String]) {
-    import scala.concurrent.duration._
-    Future(Seq(1,2)).flatMap((ints: Seq[Int]) => Future{
-      val z = ints.map(i=>Future("xxxx"))
-      z
+    println("-------------------------------------")
+    val i = 0
+    val x1 = Future {
+      if (i == 0) {
+        println("FUture failed ... ")
+        throw new Exception("XXXXXXXXXX")
+      } else 10000000
+    }
+
+    val x2 = x1.recoverWith {
+      case e: Exception => Future {
+        1000
+      }
+    }
+
+    val x3 = x1.recover {
+      case e: Exception => {
+        1000
+      }
+    }
+
+    //
+    //    x1.recoverWith{
+    //      case x:Exception => Future{println("Recovered. ....................")}
+    //    }
+
+    println(Await.result(x3, Duration.Inf))
+    println("-------------------------------------")
+    println("All done...")
+
+    val x = Seq(1, 2, 3)
+    val y = x.map(i => Future {
+      if (i == 2) throw new Exception("XXX")
     })
-//    val x = for {
-//      i <- Future(Seq(1,2,3))
-//      j <- i.map(x=>Future(x))
-//    } yield ()
-//    println(Await.result(x,10 second))
+    val z = Future.sequence(y)
+    val a = Await.result(z,Duration.Inf)
+
+
+
+
+    Thread.sleep(10000)
+
 
   }
 }

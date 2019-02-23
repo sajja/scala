@@ -158,14 +158,6 @@ object OptimisticLockingTest {
     println(s"records $i udpated")
   }
 
-  //  def update(ac: Aircraft) = {
-  //    val db = DatabaseWrapper.db
-  //    val i = Await.result(db.run(AircraftComponent.aircrafts.filter(a => a.id === ac.id && a.version === ac.version).update(ac.bumpVersion())), 10 seconds)
-  //    if (i != 0) println("Updated")
-  //    else println("Stale object")
-  //  }
-
-
   def update2(ac: Aircraft) = {
     val db = DatabaseWrapper.db
     val q = UnVersionedAircraftComponent.aircrafts.filter(a => a.id === ac.id)
@@ -195,15 +187,6 @@ object OptimisticLockingTest {
     val i4 = VersionedAircraftComponent.update1(ac5.copy(name = ac5.name + "___222"))
     Await.result(db.run(i4), 10 seconds)
     println(find(101))
-
-    //    val i2 = AircraftComponent.update1(ac4)
-    //    Await.result(db.run(i2), 10 seconds)
-    //    println(find(101))
-    //    val ac5 = find(101)
-    //    val i3 = AircraftComponent.update1(ac5)
-    //    Await.result(db.run(i3), 10 seconds)
-    //    println(find(101))
-    //    println(find(101))
   }
 }
 

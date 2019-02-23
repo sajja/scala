@@ -115,7 +115,7 @@ class Db {
   val addresses = TableQuery[Addresses]
 }
 
-object TestDB extends Db {
+object xxx extends Db {
   def bootstrap() = {
     val db = DatabaseWrapper.db
     val setup = DBIO.seq(
@@ -131,7 +131,12 @@ object TestDB extends Db {
       t3s.schema.create,
       users += User(1, "sajith"),
       users += User(2, "sajith"),
-      users += User(3, "Silva")
+      users += User(3, "sajith"),
+      users += User(4, "sajith"),
+      users += User(5, "sajith"),
+      users += User(6, "sajith"),
+      users += User(7, "sajith"),
+      users += User(8, "Silva")
       //      addresses += Address(2, "Katubadda", 1),
       //      addresses += Address(3, "Rathmalana", 1),
       //      addresses += Address(4, "Sweden", 2),
@@ -180,21 +185,6 @@ object TestDB extends Db {
       y <- (t3s returning t3s) ++= x.flatMap(j => l2.map(k => T3(Random.nextInt(), j.get.id)))
     } yield ()
 
-    /*
-        val g: DBIOAction[Seq[T2], NoStream, Write] = (t2s returning t2s) ++= l1.map(i => T2(i, 10))
-        y = (t1s returning t1s).insertOrUpdate(T1(111, "1000")).
-          flatMap((tio: Option[T1]) => g.map((ts: Seq[T2]) => ts)).
-          flatMap((x: Seq[T2]) => {
-            val v: Seq[T3] = x.map(l => T3(Random.nextInt(), l.id))
-            val b = v.map(t3 => l2.map(i => T3(Random.nextInt(), 999))).flatten
-            println("-------------------")
-            println(s"v = $v")
-            println(s"b = $b")
-            println("-------------------")
-            (t3s returning t3s) ++= b
-          }.map((result: Seq[T3]) => result))
-    */
-
     val r0 = Await.result(db.run(y), 10 seconds)
 
     println("T1---------------------")
@@ -210,12 +200,17 @@ object TestDB extends Db {
     println(r4)
 
 
-    val user1 = Await.result(db.run(users.filter(_.id === 2).result), 3 second).head
-    println(s"===>$user1")
-    println(Await.result(db.run((users returning (users)).insertOrUpdate(user1.copy(id = 2))), 2 second))
-
+//    val user1 = Await.result(db.run(users.filter(_.id === 2).result), 3 second).head
+//    println(s"===>$user1")
+//    println(Await.result(db.run((users returning (users)).insertOrUpdate(user1.copy(id = 2))), 2 second))
+//
+    val allUsers1 = Await.result(db.run(users.map(_.name).result), 3 second)
+    val allUsers2 = Await.result(db.run(users.map(_.name).distinct.result), 3 second)
+    println("ALLL USERS1==========>")
+    println(allUsers1)
+    println("ALLL USERS2==========>")
+    println(allUsers2)
   }
-
-
 }
+
 

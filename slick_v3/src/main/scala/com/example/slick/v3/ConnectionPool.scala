@@ -4,7 +4,7 @@ import java.sql.{Connection, Driver}
 import com.example.slick.util.domain.Aircrafts
 import com.mchange.v2.c3p0.impl.DefaultConnectionTester
 
-import scala.slick.driver.PostgresDriver.simple._
+import slick.driver.PostgresDriver.api._
 import com.mchange.v2.c3p0.{ConnectionTester, ComboPooledDataSource}
 
 /**
@@ -40,21 +40,21 @@ object ConnectionPool extends App {
 
   implicit val aircrafts = TableQuery[Aircrafts]
   while (true) {
-    try {
-      Thread.sleep(1000)
-      ddd.withSession{
-        implicit session=>{
-          aircrafts.foreach(println)
-        }
-      }
-      //  implicit val session = Database.forDataSource(ds()).createSession()
-    } catch {
-      case e: Throwable => {
-        println(e.getMessage)
+//    try {
+//      Thread.sleep(1000)
+//      ddd.withSession{
+//        implicit session=>{
+//          aircrafts.foreach(println)
+//        }
+//      }
+        implicit val session = Database.forDataSource(ds()).createSession()
+//    } catch {
+//      case e: Throwable => {
+//        println(e.getMessage)
 //        session.close()
 
-      }
-    }
+//      }
+//    }
   }
 }
 
