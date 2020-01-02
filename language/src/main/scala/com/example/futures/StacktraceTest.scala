@@ -30,5 +30,4 @@ object StacktraceTest {
     val o = StacktraceTest
     Await.result(o.func1(),Duration.Inf)
   }
-
 }

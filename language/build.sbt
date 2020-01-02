@@ -15,5 +15,7 @@ libraryDependencies ++= Seq(
   "io.scalac" %% "reactive-rabbit" % "1.0.3",
   "io.reactivex" %% "rxscala" % "0.25.0",
   "com.github.sstone" %% "amqp-client" % "1.5",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.8",
+  "org.codehaus.groovy" % "groovy-all" % "2.5.7",
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test"
 )

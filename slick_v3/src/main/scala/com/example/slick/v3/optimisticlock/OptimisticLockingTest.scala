@@ -1,4 +1,4 @@
-package com.example.slick
+package com.example.slick.v3.optimisticlock
 
 import com.example.slick.util.DatabaseWrapper
 import com.example.slick.util.domain._
