@@ -52,6 +52,32 @@ object OptimisticLockingTest {
   }
 
 
+  case class BigTable(i: Int, p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, p7: String)
+
+  class BigTables(tag: Tag) extends Table[BigTable](tag, "BIGT") {
+    def id = column[Int]("COF_NAME", O.PrimaryKey)
+
+    def prop1 = column[Int]("SUP_ID")
+
+    def prop2 = column[Int]("SUP_ID")
+
+    def prop3 = column[Int]("SUP_ID")
+
+    def prop4 = column[Int]("SUP_ID")
+
+    def prop5 = column[Int]("SUP_ID")
+
+    def prop6 = column[Int]("SUP_ID")
+
+    def prop7 = column[String]("SUP_ID")
+
+    //    def * = (id, name, propulsion, version) <> (Aircraft.tupled, Aircraft.unapply _)
+
+    def * = (id, prop1, prop2, prop3, prop4, prop5, prop6, prop7) <> (BigTable.tupled, BigTable.unapply _)
+
+  }
+
+
   abstract class AbstarctRepo[T <: UnVersionedEntity[T], X <: Entity[T]] {
     def eR: TableQuery[X]
 
