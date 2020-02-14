@@ -194,13 +194,24 @@ object OptimisticLockingTest {
   }
 
 
+  def newTx() = {
+    val db = DatabaseWrapper.db.ss
+
+    val i = for {
+      _ <- UnVersionedAircraftComponent.aircrafts.filter(_.id === 101)
+    } yield ()
+
+    db.run()
+
+  }
+
+
   def main(args: Array[String]) {
     val db = DatabaseWrapper.db
     bootstrap()
     listAll()
     var ac4 = find(101)
 
-    //    println(find(101))
     val i1 = UnVersionedAircraftComponent.update1(ac4.copy(name = ac4.name + "1"))
     Await.result(db.run(i1), 10 seconds)
     val i2 = UnVersionedAircraftComponent.update1(ac4.copy(name = ac4.name + "2"))
