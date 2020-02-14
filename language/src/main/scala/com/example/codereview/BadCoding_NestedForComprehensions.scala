@@ -35,6 +35,5 @@ class BadCoding_NestedForComprehensions {
     for {
       ii <- Some(i * j)
     } yield ii
-
   }
 }
