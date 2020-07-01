@@ -39,7 +39,7 @@ object Tx {
 
 
 object PRNGTest {
-  def txClickedMultipleTimes() = {
+  def rxBehindTx() = {
     var code = Tx.emit()
     code = Tx.emit()
     code = Tx.emit()
@@ -56,15 +56,19 @@ object PRNGTest {
     Rx.check(code)
   }
 
-  def rxOutOfSync() = {
+  def txBehindRx() = {
+    Tx.emit()
     Rx.check(10)
+    Rx.check(10)
+    Rx.check(10)
+    Rx.check(10)
+    val code = Tx.emit()
+    Rx.check(code)//resynced
+    Rx.check(Tx.emit())//resynced
   }
 
   def main(args: Array[String]): Unit = {
-//    txClickedMultipleTimes()
-    TXandRXinSync()
-    rxOutOfSync()
-    TXandRXinSync()
-    TXandRXinSync()
+//    rxBehindTx()
+    txBehindRx()
   }
 }
