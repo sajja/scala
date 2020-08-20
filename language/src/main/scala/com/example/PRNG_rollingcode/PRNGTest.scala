@@ -63,12 +63,12 @@ object PRNGTest {
     Rx.check(10)
     Rx.check(10)
     val code = Tx.emit()
-    Rx.check(code)//resynced
-    Rx.check(Tx.emit())//resynced
+    Rx.check(code) //resynced
+    Rx.check(Tx.emit()) //resynced
   }
 
   def main(args: Array[String]): Unit = {
-//    rxBehindTx()
+    //    rxBehindTx()
     txBehindRx()
   }
 }

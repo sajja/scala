@@ -1,8 +1,8 @@
 package com.example.patternmatching
 
 class Base
-case class Der1 extends Base
-case class Der2 extends Base
+case class Der1() extends Base
+case class Der2() extends Base
 
 object TestCase {
   def test(i:Base) {

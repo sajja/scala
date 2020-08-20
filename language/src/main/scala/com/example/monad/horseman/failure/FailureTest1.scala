@@ -8,7 +8,7 @@ abstract class MayBe[+A]() {
   def map[B](f: A => B): MayBe[B]
 }
 
-case class Err[A] extends MayBe[A] {
+case class Err[A]() extends MayBe[A] {
   override def flatMap[B](f: A => MayBe[B]): MayBe[B] = new Err()
 
   override def map[B](f: (A) => B): MayBe[B] = new Err()

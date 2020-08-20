@@ -1,50 +1,54 @@
 package com.example.monad.basic
 
-trait Option[A] {
-  def map[B](f: A => B): Option[B]
+package TestMonads {
 
-  def flatMap[B](f: A => Option[B]): Option[B]
-}
+  trait Option[A] {
+    def map[B](f: A => B): Option[B]
 
-class Some[A](val a: A) extends Option[A] {
-  override def map[B](f: (A) => B): Option[B] = new Some[B](f(a))
+    def flatMap[B](f: A => Option[B]): Option[B]
+  }
 
-  override def flatMap[B](f: (A) => Option[B]): Option[B] = f(a)
-}
+  class Some[A](val a: A) extends Option[A] {
+    override def map[B](f: (A) => B): Option[B] = new Some[B](f(a))
 
-class None[A] extends Option[A] {
-  override def map[B](f: (A) => B): Option[B] = new None
+    override def flatMap[B](f: (A) => Option[B]): Option[B] = f(a)
+  }
 
-  override def flatMap[B](f: (A) => Option[B]): Option[B] = new None
-}
+  class None[A] extends Option[A] {
+    override def map[B](f: (A) => B): Option[B] = new None
 
-class Foo(i: Int) {
-  def bar(): Option[Bar] = {
-    if (i == 10) {
-      new None
-    } else {
-      new Some[Bar](new Bar(i))
+    override def flatMap[B](f: (A) => Option[B]): Option[B] = new None
+  }
+
+  class Foo(i: Int) {
+    def bar(): Option[Bar] = {
+      if (i == 10) {
+        new None
+      } else {
+        new Some[Bar](new Bar(i))
+      }
     }
   }
-}
 
-class Bar(i: Int) {
-  def baz(): Option[Baz] = {
-    if (i == 20) {
-      new None
-    } else {
-      new Some[Baz](new Baz(i))
+  class Bar(i: Int) {
+    def baz(): Option[Baz] = {
+      if (i == 20) {
+        new None
+      } else {
+        new Some[Baz](new Baz(i))
+      }
     }
   }
-}
 
-class Baz(i: Int) {
-  def compute() = {
-    1
+  class Baz(i: Int) {
+    def compute() = {
+      1
+    }
   }
 }
 
 object Test {
+  import com.example.monad.basic.TestMonads._
 
 
   def computeBaz(baz: Baz): Int = {
@@ -76,18 +80,20 @@ object Test {
     val someOkFoo = new Some[Foo](foo)
     val r4 = someOkFoo.flatMap((foo: Foo) => foo.bar().flatMap((bar: Bar) => bar.baz().map((baz: Baz) => baz.compute())))
     val r5 = someOkFoo.flatMap {
-      foo => foo.bar.flatMap {
-        bar => bar.baz.map {
-          baz => baz.compute()
+      foo =>
+        foo.bar.flatMap {
+          bar =>
+            bar.baz.map {
+              baz => baz.compute()
+            }
         }
-      }
     }
 
 
     println("OK operation ------------------")
     r5 match {
-      case a:Some[Int] => println(a.a)
-      case a:None[_] => println("No Op")
+      case a: Some[Int] => println(a.a)
+      case a: None[_] => println("No Op")
 
     }
 
@@ -95,16 +101,18 @@ object Test {
     val someErrorFoo1 = new Some[Foo](new Foo(20))
     println("Not ok operation ------------------")
     val r6 = someErrorFoo1.flatMap {
-      foo => foo.bar.flatMap {
-        bar => bar.baz.map {
-          baz => baz.compute()
+      foo =>
+        foo.bar.flatMap {
+          bar =>
+            bar.baz.map {
+              baz => baz.compute()
+            }
         }
-      }
     }
 
     r6 match {
-      case a:Some[Int] => println(a.a)
-      case a:None[_] => println("No Op")
+      case a: Some[Int] => println(a.a)
+      case a: None[_] => println("No Op")
 
     }
 

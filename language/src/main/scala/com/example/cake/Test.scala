@@ -23,8 +23,6 @@ class BarUsingFooAble {
 
 
 object Main {
-  def main(args: Array[String]) {
-    val barWithFoo = new BarUsingFooAble with MyFooAble with  BazAble//see note #3
-    println(barWithFoo.bar())
+  def main(args: Array[String]): Unit = {
   }
 }
