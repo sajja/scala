@@ -2,6 +2,8 @@ name := "scala"
 
 description := "Scala db examples"
 
+scalaVersion := "2.11.1"
+
 val akkaVersion = "2.3.2"
 
 libraryDependencies ++= Seq(
@@ -17,5 +19,6 @@ libraryDependencies ++= Seq(
   "com.github.sstone" %% "amqp-client" % "1.5",
   "org.apache.httpcomponents" % "httpclient" % "4.5.8",
   "org.codehaus.groovy" % "groovy-all" % "2.5.7",
-  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test"
+  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
+  "org.typelevel" %% "cats-core" % "2.0.0"
 )
