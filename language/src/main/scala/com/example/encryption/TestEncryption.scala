@@ -2,7 +2,7 @@ package com.example.encryption
 
 import java.nio.ByteBuffer
 import java.security.SecureRandom
-import java.util.Base64
+import java.util.{Base64, UUID}
 
 import javax.crypto.{Cipher, SecretKeyFactory}
 import javax.crypto.spec.{PBEKeySpec, SecretKeySpec}
@@ -40,8 +40,8 @@ object TestEncryption {
     val iv = new Array[Byte](12);
     val salt = new Array[Byte](16);
     //it seems iv/salt is in the begining
-    bb.get(iv);
-    bb.get(salt);
+    bb.get(iv)
+    bb.get(salt)
     val cipherText = new Array[Byte](bb.remaining());
     bb.get(cipherText);
     val aesKeyFromPassword = getKeyFromPass(password.toCharArray(), salt);
@@ -57,5 +57,6 @@ object TestEncryption {
     println(encryptedData)
     val decrptedData = decrypt(encryptedData, "password")
     println(decrptedData)
+    UUID.fromString("18111689-98d6-497b-9ee3-f7a85ab2f52e")
   }
 }

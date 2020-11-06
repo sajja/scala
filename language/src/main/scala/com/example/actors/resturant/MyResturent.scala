@@ -97,6 +97,6 @@ object MyResturent {
     (restaurant ? ClientReadyToOrder(client2)).onSuccess{
       case x:String=>println(x)
     }
-    system.awaitTermination(Duration(80L, "s"))
+    system.terminate()
   }
 }

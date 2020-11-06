@@ -79,6 +79,6 @@ object TestEventStroe {
     commandModule.createAccount("3", 300)
     commandModule.withdraw("3", 200)
     println(commandModule.listAccounts())
-    system.shutdown()
+    system.terminate()//DISCLAIMER: Just to get this compiled.
   }
 }
