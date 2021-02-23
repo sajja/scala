@@ -1,5 +1,7 @@
 package com.example.slick.v3.streaming
 
+import java.util.UUID
+
 import com.example.slick.util.DatabaseWrapper
 import com.example.slick.util.domain._
 import org.reactivestreams.Publisher
@@ -15,8 +17,8 @@ import scala.util.Random
 
 object StreamingTest {
 
-  class StreamingLog(tag: Tag) extends Table[(Int, String)](tag, "streaming_log") {
-    def id = column[Int]("id", O.PrimaryKey)
+  class StreamingLog(tag: Tag) extends Table[(String, String)](tag, "streaming_log") {
+    def id = column[String]("id", O.PrimaryKey)
 
     // This is the primary key column
     def log = column[String]("log")
@@ -27,77 +29,46 @@ object StreamingTest {
 
   val streamingLogTable = TableQuery[StreamingLog]
 
+  def bootstrapData() = {
+    val db = DatabaseWrapper.db
+    val inserts = for (i <- 0 to 999) yield streamingLogTable += (UUID.randomUUID().toString, Random.nextString(4))
+    Await.result(db.run(DBIO.sequence(inserts)), Duration.Inf)
+  }
 
-  def bootstrap() = {
+  def createDb() = {
     val db = DatabaseWrapper.db
     val setup = DBIO.seq(
       streamingLogTable.schema.drop,
-      streamingLogTable.schema.create,
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4)),
-      streamingLogTable += (Random.nextInt(10000), Random.nextString(4))
+      streamingLogTable.schema.create
     )
-
-    //    val setupFuture = db.run(setup)
-    //    Await.result(setupFuture, 10 second)
+    val setupFuture = db.run(setup)
+    Await.result(setupFuture, 10 second)
   }
 
-  def stream(): StreamingDBIO[Seq[(Int)], (Int)] = {
-    val reslutls = streamingLogTable.map((log: StreamingLog) => log.id).result
-    reslutls
-  }
 
   def printAll() = {
     import scala.concurrent.ExecutionContext.Implicits.global
     val db = DatabaseWrapper.db
-    //    println("XXXXXXXXXXXXXXXX")
-    //
-    //    val pub: DatabasePublisher[Int] = db.stream(stream())
-    //    pub.foreach {
-    //      a =>
-    //        println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-    //        Thread.sleep(100)
-    //        println(a)
-    //    }
-
-
-    //    Await.result(db.run(streamingLogTable.result),Duration.Inf).foreach(println)
-
-
+    var i = 0
     db.stream(streamingLogTable.result.withStatementParameters(fetchSize = 100,
       rsType = ResultSetType.ForwardOnly,
       rsConcurrency = ResultSetConcurrency.ReadOnly).transactionally).foreach {
       a => {
         println(a)
-        Thread.sleep(1000)
       }
     }
+
   }
 
 
   def main(args: Array[String]) {
     val db = DatabaseWrapper.db
-    bootstrap()
+    createDb()
+    bootstrapData()
+
+    Thread.sleep(1000)
     printAll()
+    Thread.sleep(10000000)
   }
 }
 

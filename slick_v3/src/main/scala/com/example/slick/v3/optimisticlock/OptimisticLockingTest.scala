@@ -195,13 +195,11 @@ object OptimisticLockingTest {
 
 
   def newTx() = {
-    val db = DatabaseWrapper.db.ss
+    val db = DatabaseWrapper.db
 
     val i = for {
       _ <- UnVersionedAircraftComponent.aircrafts.filter(_.id === 101)
     } yield ()
-
-    db.run()
 
   }
 
