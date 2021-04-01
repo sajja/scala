@@ -57,7 +57,6 @@ object StreamingTest {
         println(a)
       }
     }
-
   }
 
 

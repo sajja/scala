@@ -7,7 +7,8 @@ val akkaVersion = "2.3.2"
 libraryDependencies ++= Seq(
   //  "com.typesafe.slick" %% "slick" % "3.0.0",
   "com.typesafe.slick" %% "slick" % "2.0.0",
-  "postgresql" % "postgresql" % "9.1-901.jdbc4",
+  "org.postgresql" % "postgresql" % "9.4-1200-jdbc41",
+
   "com.googlecode.flyway" % "flyway-core" % "2.1.1",
   "c3p0" % "c3p0" % "0.9.0.4",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,

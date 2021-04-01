@@ -6,6 +6,7 @@ import cats.implicits._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
+import scala.util.{Success, Try}
 
 case class UserDTO(email: String, password: String)
 
@@ -164,21 +165,21 @@ object ValidationTestOld {
     //      }
     //    }
     //
-    //    val xxx = for {
-    //      optOp1 <- dbOp1(1)
-    //      x <- lift(optOp1, "Invalid option optOpt1")
-    //      _ <- {
-    //        //with A
-    //        //      write some code which wash your windows
-    //        //      tie your shoes with a
-    //        //      Comb your hair
-    //        Future {}
-    //      }
-    //      y <- dbOp2(x)
-    //      z <- lift(y, "Invalid option y")
-    //      // you see where the pattern....
-    //      // Now we eliminate the netsting of case statements.
-    //    } yield {}
+    val xxx = for {
+      optOp1 <- dbOp1(1)
+      x <- lift(optOp1, "Invalid option optOpt1")
+      _ <- {
+        //with A
+        //      write some code which wash your windows
+        //      tie your shoes with a
+        //      Comb your hair
+        Future {}
+      }
+      y <- dbOp2(x)
+      z <- lift(y, "Invalid option y")
+      // you see where the pattern....
+      // Now we eliminate the netsting of case statements.
+    } yield {}
 
 
     //this works, however no error handling if the option is None
@@ -193,7 +194,6 @@ object ValidationTestOld {
         //      Comb your hair
         OptionT(dbOp2(a))
       }
-
     } yield {}
 
     Await.result(yyyy.value, Duration.Inf)
@@ -201,13 +201,13 @@ object ValidationTestOld {
     //may be we lift the Option to another Future
   }
 
-
   //classic nested option for validation
   def nestedOptionsWithCats() = {
     val valU = validateOption(getUser(None), "Error user")
     val valPass = validateOption(getUser(Some("11")), "Error Pass")
     val valSal = validateOption(getSalary(Some(11)), "Error Sal")
     val valAge = validateOption(getAge(None), "Error Age")
+
     (valU, valPass, valSal, valAge).mapN((i, j, k, l) => {}) match {
       case Valid(_) => println("All valid")
       case Invalid(s) => {
@@ -217,9 +217,41 @@ object ValidationTestOld {
     }
   }
 
+  case class AuthResponse(id: String)
+
+
+  def authorize(op: String): Try[AuthResponse] = ???
+
+
+  def authorizeOp(id: String, f: AuthResponse => Unit) = {
+    authorize("") match {
+      case Success(value) => f(value)
+    }
+  }
+
+
+  def doOperation(auth: AuthResponse) = ???
+
+  def doOperation1(): AuthResponse => Unit = {
+    _ => println("OP1")
+  }
+
+  def doOperation2()(implicit auth: AuthResponse) = {
+    println("OP2")
+  }
+
+  def doOperation3: (AuthResponse => Unit) = {
+    a => println("OP3")
+  }
+
   def main(args: Array[String]): Unit = {
     //    formValidationTestWithCats()
     //    nestedOptionsWithCats()
-    classicFutureOptionNest()
+    implicit val a = AuthResponse("")
+    //    classicFutureOptionNest()
+    doOperation2()
+
+    doOperation3(a)
+
   }
 }
