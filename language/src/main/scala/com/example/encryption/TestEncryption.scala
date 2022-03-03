@@ -2,13 +2,11 @@ package com.example.encryption
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import java.security.{Provider, SecureRandom}
+import java.security.{MessageDigest, Provider, SecureRandom}
 import java.util
 import java.util.{Base64, UUID}
-
 import javax.crypto.{Cipher, SecretKeyFactory}
 import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
-
 import scala.util.Try
 
 object TestEncryption {
@@ -66,9 +64,9 @@ object TestEncryption {
     Base64.getEncoder().encodeToString(cipherTextWithIvSalt);
   }
 
-  def decrypt(bytes:Array[Byte],password:String) = {
+  def decrypt(bytes: Array[Byte], password: String) = {
     val iv = new Array[Byte](12);
-    val keySpec = new SecretKeySpec(password.getBytes(),cipherInstance)
+    val keySpec = new SecretKeySpec(password.getBytes(), cipherInstance)
   }
 
   // we need the same password, salt and iv to decrypt it
@@ -101,16 +99,25 @@ object TestEncryption {
     println(Base64.getEncoder().encodeToString(x))
     println(Base64.getEncoder().encodeToString(y))
 
-    val decrptedData = decrypt(x,"password")
+    val decrptedData = decrypt(x, "password")
     println(decrptedData)
     UUID.fromString("18111689-98d6-497b-9ee3-f7a85ab2f52e")
 
 
-    val seed = new Array[Byte](1)
-    seed(0) = 1
-    println(new SecureRandom(seed).nextLong())
-    println(new SecureRandom(seed).nextLong())
+    val messageDigest = MessageDigest.getInstance("SHA")
 
-    val l = Long.MaxValue
+    val passwordBytes = "5ajith@pager0".getBytes("UTF-8")
+    val saltBytes = "121183380".getBytes("UTF-8")
+    val passwordDigest = Base64.getEncoder.encode(messageDigest.digest(passwordBytes))
+    messageDigest.reset()
+    val z = Array.concat(saltBytes,passwordDigest)
+//    val hashWithSalt = messageDigest.digest(saltBytes ++ passwordDigest)
+    val hashWithSalt = messageDigest.digest(z)
+    val l = Base64.getEncoder.encodeToString(hashWithSalt)
+
+    println("-----------------------")
+    println(l == "lPuvLPbo2gjLLh4CKF8uj0fBEZM=");
+
+
   }
 }
